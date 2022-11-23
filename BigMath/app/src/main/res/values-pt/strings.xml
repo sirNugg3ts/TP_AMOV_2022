@@ -1,10 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BigMath</string>
     <string name="title_activity_credits">CreditsActivity</string>
-    <string name="credits">Credits</string>
-    <string name="authors">Authors</string>
+    <string name="credits">Créditos</string>
+    <string name="authors">Autores</string>
     <string name="author1">Diogo Pascoal</string>
     <string name="author2">Autor 2</string>
     <string name="author3">Autor 3</string>
-    <string name="course_name">Mobile Applications</string>
+    <string name="course_name">Aplicações Móveis</string>
 </resources>
