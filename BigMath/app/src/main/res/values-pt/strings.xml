@@ -8,4 +8,6 @@
     <string name="author2">Autor 2</string>
     <string name="author3">Autor 3</string>
     <string name="course_name">Aplicações Móveis</string>
+    <string name="PAUSA_STR">PAUSA</string>
+    <string name="score">PONTOS</string>
 </resources>
