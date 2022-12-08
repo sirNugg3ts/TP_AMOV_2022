@@ -1,13 +1,11 @@
-package pt.isec.amov.amovg11
+package pt.isec.a21280348.bigmath
 
-import android.location.GnssAntennaInfo.Listener
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
-import pt.isec.amov.amovg11.databinding.ActivityGameTableBinding
-import pt.isec.amov.amovg11.utils.TableSupporter.Companion.generateTable
+import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
+import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.generateTable
 
 class GameTableActivity : AppCompatActivity() {
     private lateinit var binding : ActivityGameTableBinding

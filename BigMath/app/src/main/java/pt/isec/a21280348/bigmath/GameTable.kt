@@ -1,17 +1,15 @@
-package pt.isec.amov.amovg11
+package pt.isec.a21280348.bigmath
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Path
 import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
-import pt.isec.amov.amovg11.databinding.ActivityGameTableBinding
-import pt.isec.amov.amovg11.utils.TableSupporter
-import pt.isec.amov.amovg11.utils.TableSupporter.Companion.checkOperation
+import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
+import pt.isec.a21280348.bigmath.utils.TableSupporter
+import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.checkOperation
 import kotlin.math.abs
 
 const val TAG_DAREA = "DrawingAreaEvent"

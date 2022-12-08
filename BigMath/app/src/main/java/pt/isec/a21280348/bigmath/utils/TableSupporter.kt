@@ -1,4 +1,4 @@
-package pt.isec.amov.amovg11.utils
+package pt.isec.a21280348.bigmath.utils
 
 class TableSupporter {
 
