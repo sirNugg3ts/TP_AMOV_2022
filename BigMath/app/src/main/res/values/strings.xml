@@ -1,12 +1,13 @@
 <resources>
-    <string name="app_name">AMOV G11</string>
-    <string name="PAUSA_STR">PAUSE</string>
-    <string name="score">SCORE</string>
+    <string name="app_name">BigMath</string>
+    <string name="single_player">Single Player</string>
+    <string name="multiplayer">Multiplayer</string>
     <string name="title_activity_credits">CreditsActivity</string>
     <string name="credits">Credits</string>
-    <string name="authors">Authors</string>
-    <string name="author1">A1</string>
-    <string name="author2">A2</string>
-    <string name="author3">A3</string>
-    <string name="course_name">Mobile Applications</string>
+    <string name="exit">Exit</string>
+    <string name="profile">Profile</string>
+    <string name="takePhoto">Take Photo</string>
+    <string name="chooseImage">Choose Image</string>
+    <string name="firstName">First Name</string>
+    <string name="lastName">Last Name</string>
 </resources>
