@@ -10,4 +10,12 @@
     <string name="course_name">Aplicações Móveis</string>
     <string name="PAUSA_STR">PAUSA</string>
     <string name="score">PONTOS</string>
+    <string name="single_player">1 Jogador</string>
+    <string name="multiplayer">MultiJogador</string>
+    <string name="exit">Sair</string>
+    <string name="profile">Perfil</string>
+    <string name="takePhoto">Tirar Foto</string>
+    <string name="chooseImage">Selecionar Imagem</string>
+    <string name="firstName">Primeiro Nome</string>
+    <string name="lastName">Apelido</string>
 </resources>
