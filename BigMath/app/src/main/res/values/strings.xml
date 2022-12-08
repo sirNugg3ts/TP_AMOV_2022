@@ -1,10 +1,5 @@
 <resources>
-    <string name="app_name">BigMath</string>
-    <string name="title_activity_credits">CreditsActivity</string>
-    <string name="credits">Credits</string>
-    <string name="authors">Authors</string>
-    <string name="author1">Diogo Pascoal</string>
-    <string name="author2">Autor 2</string>
-    <string name="author3">Autor 3</string>
-    <string name="course_name">Mobile Applications</string>
+    <string name="app_name">AMOV G11</string>
+    <string name="PAUSA_STR">PAUSA</string>
+    <string name="score">SCORE</string>
 </resources>
