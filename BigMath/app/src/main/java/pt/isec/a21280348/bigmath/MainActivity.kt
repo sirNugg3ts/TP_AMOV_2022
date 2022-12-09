@@ -28,7 +28,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnSinglePlayer.setOnClickListener{
-            Toast.makeText(this,"Not implemented yet",Toast.LENGTH_SHORT).show()
+            val intent = Intent(this,GameTableActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnMultiplayer.setOnClickListener{
@@ -36,7 +37,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnCredits.setOnClickListener{
-            Toast.makeText(this,"Not implemented yet",Toast.LENGTH_SHORT).show()
+            val intent = Intent(this,CreditsActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnExit.setOnClickListener{

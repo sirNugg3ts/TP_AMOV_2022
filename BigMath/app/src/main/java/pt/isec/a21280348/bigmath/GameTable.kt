@@ -23,6 +23,7 @@ class GameTable @JvmOverloads constructor(
 
     lateinit var table : MutableList<Any>
     var score : Int = 0
+    private var phase : Int = 1
     private var level : Int = 1
         set(value){
             field = value
@@ -120,7 +121,11 @@ class GameTable @JvmOverloads constructor(
     }
 
     fun nextLevel(){
-        table = TableSupporter.generateTable(level++)
+        if((phase++) > 5) {
+            phase = 1
+            level++
+        }
+        table = TableSupporter.generateTable(level)
         var it = table.iterator()
         Log.i("a",table.toString())
         for(i in 0..24){
@@ -268,7 +273,6 @@ class GameTable @JvmOverloads constructor(
         value = checkOperation(table.get(4) as Int,table.get(7) as Char,table.get(12) as Int,table.get(15) as Char,table.get(20) as Int)
         if(value > bigger) {
             biggerId = 6
-            bigger = value
         }
 
        return biggerId

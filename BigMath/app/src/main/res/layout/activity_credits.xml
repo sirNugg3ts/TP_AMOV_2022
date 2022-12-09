@@ -64,7 +64,7 @@
             android:layout_height="96dp"
             android:layout_weight="1"
 
-            android:src="@drawable/diogo_p"
+            android:src="@drawable/leonardo_sousa"
             app:civ_border_width="2dp"
             app:civ_border_color="#FF000000"/>
         <de.hdodenhof.circleimageview.CircleImageView
@@ -72,7 +72,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="96dp"
-            android:src="@drawable/diogo_p"
+            android:src="@drawable/rodrigo_costa"
             app:civ_border_width="2dp"
             app:civ_border_color="#FF000000"/>
 

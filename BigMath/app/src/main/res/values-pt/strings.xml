@@ -5,12 +5,12 @@
     <string name="credits">Créditos</string>
     <string name="authors">Autores</string>
     <string name="author1">Diogo Pascoal</string>
-    <string name="author2">Autor 2</string>
-    <string name="author3">Autor 3</string>
+    <string name="author2">Leonardo Sousa</string>
+    <string name="author3">Rodrigo Costa</string>
     <string name="course_name">Aplicações Móveis</string>
     <string name="PAUSA_STR">PAUSA</string>
     <string name="score">PONTOS</string>
-    <string name="single_player">1 Jogador</string>
+    <string name="single_player">Um Jogador</string>
     <string name="multiplayer">MultiJogador</string>
     <string name="exit">Sair</string>
     <string name="profile">Perfil</string>
