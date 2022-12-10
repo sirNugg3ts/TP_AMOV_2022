@@ -18,4 +18,5 @@
     <string name="chooseImage">Selecionar Imagem</string>
     <string name="firstName">Primeiro Nome</string>
     <string name="lastName">Apelido</string>
+    <string name="time">Tempo</string>
 </resources>

@@ -1,17 +1,21 @@
 package pt.isec.a21280348.bigmath
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import android.widget.Toast
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.generateTable
+import pt.isec.a21280348.bigmath.utils.TimeCounter
 
 class GameTableActivity : AppCompatActivity() {
     private lateinit var binding : ActivityGameTableBinding
     lateinit var gameTable : GameTable
     var score : Int = 0
     var table : MutableList<Any> = mutableListOf(20)
+    var paused : Boolean = false
     private var level : Int = 0
         set(value){
             field = value
@@ -28,16 +32,50 @@ class GameTableActivity : AppCompatActivity() {
 
         startGame()
 
+        /*object : CountDownTimer(GAMETIME,1000){
+            override fun onTick(millisUntilFinished: Long) {
+                binding.timeCounter.text = (millisUntilFinished/1000).toString()
+
+            }
+
+            override fun onFinish() {
+
+            }
+
+        }.start()*/
+
         gameTable = GameTable(this,binding,table,score)
         binding.gameTableId.addView(gameTable)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Math Game"
 
-        binding.btnPause.setOnClickListener{
-            Toast.makeText(this,"PAUSA",Toast.LENGTH_SHORT).show()
+        //val myCounter = TimeCounter(binding.timeCounter)
+
+        //myCounter.start()
+        val r = Thread{
+            var currentTime : Long = 60000
+            while(currentTime > 0) {
+                if (!paused) {
+                    binding.timeCounter.post{
+                        binding.timeCounter.text =(currentTime / 1000).toString()
+                    }
+                    currentTime -= 1000
+                }
+                Thread.sleep(1000)
+            }
+            var intent = Intent(this,ScoreboardActivity::class.java)
+            intent.putExtra("score",gameTable.getFinalScore())
+            startActivity(intent)
         }
 
+        r.start()
+
+
+        binding.btnPause.setOnClickListener{
+            paused = !paused
+            Toast.makeText(this,"PAUSA",Toast.LENGTH_SHORT).show()
+        }
 
     }
 
@@ -45,9 +83,6 @@ class GameTableActivity : AppCompatActivity() {
     fun startGame(){
         nextLevel()
     }
-
-
-
 
 
     fun nextLevel(){
@@ -85,6 +120,11 @@ class GameTableActivity : AppCompatActivity() {
                 24 -> binding.cell25.text = it.next().toString()
             }
         }
+    }
+
+
+    companion object{
+        val GAMETIME : Long = 60000
     }
 
 }

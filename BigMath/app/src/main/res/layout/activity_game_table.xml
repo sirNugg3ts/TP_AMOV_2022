@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -364,7 +369,8 @@
         android:id="@+id/tvScore">
     </TextView>
 
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+    <Button android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColor="@color/operator_cell"
         android:background="@drawable/pause_button"
@@ -372,3 +378,25 @@
         android:id="@+id/btnPause">
     </Button>
 </LinearLayout>
+
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_counter_24"
+        android:id="@+id/timeLabel"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:text="11"
+        android:id="@+id/timeCounter"
+        android:layout_toStartOf="@id/timeLabel"
+        />
+
+</RelativeLayout>

@@ -120,6 +120,10 @@ class GameTable @JvmOverloads constructor(
         super.onSizeChanged(w, h, oldw, oldh)
     }
 
+    public fun getFinalScore() : Int{
+        return score
+    }
+
     fun nextLevel(){
         if((phase++) > 5) {
             phase = 1
