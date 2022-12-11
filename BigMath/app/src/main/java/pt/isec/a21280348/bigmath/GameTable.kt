@@ -12,17 +12,14 @@ import pt.isec.a21280348.bigmath.utils.TableSupporter
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.checkOperation
 import kotlin.math.abs
 
-const val TAG_DAREA = "DrawingAreaEvent"
-
 class GameTable @JvmOverloads constructor(
     context      : Context,
     attrs        : AttributeSet? = null,
     defStyleAttr : Int = 0,
     defStyleRes  : Int = 0
 ) : View(context,attrs,defStyleAttr,defStyleRes),GestureDetector.OnGestureListener {
-
     lateinit var table : MutableList<Any>
-    var score : Int = 0
+    lateinit var info : GameTableActivity.GameInfo
     private var phase : Int = 1
     private var level : Int = 1
         set(value){
@@ -34,11 +31,12 @@ class GameTable @JvmOverloads constructor(
 
     var isScrolling : Boolean = false
 
-    constructor(context: Context, binding : ActivityGameTableBinding, table : MutableList<Any>,score : Int) : this(context) {
+    constructor(context: Context, binding : ActivityGameTableBinding, table : MutableList<Any>,info : GameTableActivity.GameInfo) : this(context) {
         this.binding = binding
         this.table = table
-        this.score = score
+        this.info = info
     }
+
 
 
     private val gestureDetector : GestureDetector by lazy {
@@ -111,7 +109,6 @@ class GameTable @JvmOverloads constructor(
         velocityX: Float,
         velocityY: Float
     ): Boolean {
-        Log.i(TAG_DAREA, "onFling: ")
         //checkDistance(e1,e2)
         return false
     }
@@ -121,14 +118,11 @@ class GameTable @JvmOverloads constructor(
     }
 
     public fun getFinalScore() : Int{
-        return score
+        return info.currentScore
     }
 
     fun nextLevel(){
-        if((phase++) > 5) {
-            phase = 1
-            level++
-        }
+
         table = TableSupporter.generateTable(level)
         var it = table.iterator()
         Log.i("a",table.toString())
@@ -223,20 +217,31 @@ class GameTable @JvmOverloads constructor(
         //4 -> column one,
         //etc...
         if(chosen == checkBigger()) {
-            score += 2 * level
+            if((phase++) > 5) {
+                phase = 1
+                level++
+            }
+            info.currentScore += 2 * level
             binding.tvScore.setTextColor(resources.getColor(R.color.rightChoice))
             binding.tvScore.animate().setDuration(750).withEndAction { binding.tvScore.setTextColor(Color.BLACK) }.start()
+            if(info.currentTime < 55)
+                info.currentTime += 5
+            else
+                info.currentTime = 60
+            binding.timeCounter?.post {
+                binding.timeCounter.text = (info.currentTime).toString()
+            }
         }
         else {
             binding.tvScore.setTextColor(resources.getColor(R.color.wrongChoice))
             binding.tvScore.animate().setDuration(750).withEndAction { binding.tvScore.setTextColor(Color.BLACK) }.start()
-                score -= (level* 1.3).toInt();
-                if(score < 0)
-                    score = 0
+            info.currentScore -= (level* 1.3).toInt();
+                if(info.currentScore < 0)
+                    info.currentScore = 0
 
         }
 
-        binding.tvScore.text =  score.toString()
+        binding.tvScore.text =  info.currentScore.toString()
     }
 
 
@@ -283,48 +288,3 @@ class GameTable @JvmOverloads constructor(
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-   if(((e1.x > 0 && e1.x < cellWidht) && (e2.x > cellWidht*4)) && (e1.y > 0 && e2.y < cellHeight) ) {
-       Log.i(TAG_DAREA, "Primeira Linha!")
-       chosen = 1
-       valid = true
-   }
-   else if(((e1.x > 0 && e1.x < cellWidht) && (e2.x > cellWidht*4)) && (e1.y > cellHeight*2 && e2.y < cellHeight*3) ) {
-       Log.i(TAG_DAREA, "Segunda Linha!")
-       chosen = 2
-       valid = true
-   }
-   else if(((e1.x > 0 && e1.x < cellWidht) && (e2.x > cellWidht*4)) && (e1.y > cellHeight*4 && e2.y < cellHeight*5) ) {
-       Log.i(TAG_DAREA, "Terceira Linha!")
-       chosen = 3
-       valid = true
-   }
-   else if(((e1.y > 0 && e1.y < cellHeight) && (e2.y > cellHeight*4)) && (e1.x > 0 && e2.x < cellWidht) ) {
-       Log.i(TAG_DAREA, "PRIMEIRA COLUNA!")
-       chosen = 4
-       valid = true
-   }
-   else if(((e1.y > 0 && e1.y < cellHeight) && (e2.y > cellHeight*4)) && (e1.x > cellWidht*2 && e2.x < cellWidht*3) ) {
-       Log.i(TAG_DAREA, "Segunda COLUNA!")
-       chosen = 5
-       valid = true
-   }
-
-   else if(((e1.y > 0 && e1.y < cellHeight) && (e2.y > cellHeight*4)) && (e1.x > cellWidht*4 && e2.x < cellWidht*5) ) {
-       Log.i(TAG_DAREA, "Terceira COLUNA!")
-       chosen = 6
-       valid = true
-   }*/

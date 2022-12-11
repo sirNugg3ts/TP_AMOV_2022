@@ -18,7 +18,8 @@
         tools:targetApi="33">
         <activity
             android:name=".ScoreboardActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

@@ -11,16 +11,17 @@ import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.generateTable
 import pt.isec.a21280348.bigmath.utils.TimeCounter
 
 class GameTableActivity : AppCompatActivity() {
+    data class GameInfo(var currentScore : Int,var currentTime : Int)
     private lateinit var binding : ActivityGameTableBinding
     lateinit var gameTable : GameTable
-    var score : Int = 0
+    var info : GameInfo = GameInfo(0, GAMETIME)
     var table : MutableList<Any> = mutableListOf(20)
     var paused : Boolean = false
     private var level : Int = 0
         set(value){
             field = value
             binding.levelView.text = "Level: " + value
-            binding.tvScore.text =  score.toString()
+            binding.tvScore.text = info.currentScore.toString()
         }
 
 
@@ -32,35 +33,21 @@ class GameTableActivity : AppCompatActivity() {
 
         startGame()
 
-        /*object : CountDownTimer(GAMETIME,1000){
-            override fun onTick(millisUntilFinished: Long) {
-                binding.timeCounter.text = (millisUntilFinished/1000).toString()
 
-            }
 
-            override fun onFinish() {
-
-            }
-
-        }.start()*/
-
-        gameTable = GameTable(this,binding,table,score)
+        gameTable = GameTable(this,binding,table,info)
         binding.gameTableId.addView(gameTable)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Math Game"
 
-        //val myCounter = TimeCounter(binding.timeCounter)
-
-        //myCounter.start()
         val r = Thread{
-            var currentTime : Long = 60000
-            while(currentTime > 0) {
+            while(info.currentTime > 0) {
                 if (!paused) {
                     binding.timeCounter.post{
-                        binding.timeCounter.text =(currentTime / 1000).toString()
+                        binding.timeCounter.text =(info.currentTime ).toString()
                     }
-                    currentTime -= 1000
+                    info.currentTime -= 1
                 }
                 Thread.sleep(1000)
             }
@@ -124,7 +111,7 @@ class GameTableActivity : AppCompatActivity() {
 
 
     companion object{
-        val GAMETIME : Long = 60000
+        val GAMETIME : Int = 60
     }
 
 }
