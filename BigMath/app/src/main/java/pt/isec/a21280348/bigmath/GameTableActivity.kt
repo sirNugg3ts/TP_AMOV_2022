@@ -3,26 +3,18 @@ package pt.isec.a21280348.bigmath
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.util.Log
-import android.widget.Toast
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.generateTable
-import pt.isec.a21280348.bigmath.utils.TimeCounter
 
 class GameTableActivity : AppCompatActivity() {
-    data class GameInfo(var currentScore : Int,var currentTime : Int)
+    data class GameInfo(var currentScore : Int,var currentTime : Int,var inTurn : Boolean,var level :Int)
     private lateinit var binding : ActivityGameTableBinding
+
     lateinit var gameTable : GameTable
-    var info : GameInfo = GameInfo(0, GAMETIME)
+    var info : GameInfo = GameInfo(0, GAMETIME,false,1)
     var table : MutableList<Any> = mutableListOf(20)
     var paused : Boolean = false
-    private var level : Int = 0
-        set(value){
-            field = value
-            binding.levelView.text = "Level: " + value
-            binding.tvScore.text = info.currentScore.toString()
-        }
 
 
 
@@ -30,7 +22,6 @@ class GameTableActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityGameTableBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         startGame()
 
 
@@ -43,7 +34,21 @@ class GameTableActivity : AppCompatActivity() {
 
         val r = Thread{
             while(info.currentTime > 0) {
-                if (!paused) {
+                if(info.inTurn){
+                    var pausetime : Int = 5
+                    binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_42)
+                    while(pausetime > 0){
+                        if(!paused){
+                            pausetime -=1
+                            binding.levelView.text = "Next level in " + pausetime + " seconds!"
+                        }
+                        Thread.sleep(1000)
+                    }
+                    binding.levelView.text = "Level: " + info.level.toString()
+                    binding.btnPause.setImageResource(R.drawable.ic_outline_empty_origin_42)
+                    info.inTurn = false
+                }
+                else if (!paused) {
                     binding.timeCounter.post{
                         binding.timeCounter.text =(info.currentTime ).toString()
                     }
@@ -59,11 +64,17 @@ class GameTableActivity : AppCompatActivity() {
         r.start()
 
 
-        binding.btnPause.setOnClickListener{
-            paused = !paused
-            Toast.makeText(this,"PAUSA",Toast.LENGTH_SHORT).show()
-        }
+        binding.btnPause.setOnClickListener {
+            if (info.inTurn) {
+                paused = !paused
+                if (paused) {
+                    binding.btnPause.setImageResource(R.drawable.ic_baseline_play_arrow_42)
+                } else {
+                    binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_42)
 
+                }
+            }
+        }
     }
 
 
@@ -73,7 +84,8 @@ class GameTableActivity : AppCompatActivity() {
 
 
     fun nextLevel(){
-        table = generateTable(level++)
+        table = generateTable(info.level)
+        binding.levelView.text = "Level: " + info.level.toString()
         var it = table.iterator()
         Log.i("a",table.toString())
         for(i in 0..24){
@@ -107,6 +119,10 @@ class GameTableActivity : AppCompatActivity() {
                 24 -> binding.cell25.text = it.next().toString()
             }
         }
+    }
+
+    fun confirmQuit(){
+
     }
 
 

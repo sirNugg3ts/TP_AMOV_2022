@@ -21,11 +21,7 @@ class GameTable @JvmOverloads constructor(
     lateinit var table : MutableList<Any>
     lateinit var info : GameTableActivity.GameInfo
     private var phase : Int = 1
-    private var level : Int = 1
-        set(value){
-            field = value
-            binding.levelView.text =  "Level: " +value.toString()
-        }
+
 
     private lateinit var binding : ActivityGameTableBinding
 
@@ -86,7 +82,7 @@ class GameTable @JvmOverloads constructor(
 
 
 
-        if(!isScrolling){
+        if(!isScrolling && !info.inTurn){
             if((myDistanceY > cellHeight * 3) && (myDistanceX < cellWidht)){//colunas
                 checkColumn(e1,e2)
                 isScrolling = true
@@ -123,7 +119,7 @@ class GameTable @JvmOverloads constructor(
 
     fun nextLevel(){
 
-        table = TableSupporter.generateTable(level)
+        table = TableSupporter.generateTable(info.level)
         var it = table.iterator()
         Log.i("a",table.toString())
         for(i in 0..24){
@@ -217,11 +213,16 @@ class GameTable @JvmOverloads constructor(
         //4 -> column one,
         //etc...
         if(chosen == checkBigger()) {
-            if((phase++) > 5) {
+            if((phase++) > 4) {
                 phase = 1
-                level++
+                info.level++
+                binding.levelPhase.text = ""
+                info.inTurn = true
+                binding.levelView.text =  "Level: " +info.level.toString()
+            }else{
+                binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
             }
-            info.currentScore += 2 * level
+            info.currentScore += 2 * info.level
             binding.tvScore.setTextColor(resources.getColor(R.color.rightChoice))
             binding.tvScore.animate().setDuration(750).withEndAction { binding.tvScore.setTextColor(Color.BLACK) }.start()
             if(info.currentTime < 55)
@@ -235,9 +236,9 @@ class GameTable @JvmOverloads constructor(
         else {
             binding.tvScore.setTextColor(resources.getColor(R.color.wrongChoice))
             binding.tvScore.animate().setDuration(750).withEndAction { binding.tvScore.setTextColor(Color.BLACK) }.start()
-            info.currentScore -= (level* 1.3).toInt();
-                if(info.currentScore < 0)
-                    info.currentScore = 0
+            info.currentScore -= (info.level* 1.3).toInt();
+            if(info.currentScore < 0)
+                info.currentScore = 0
 
         }
 

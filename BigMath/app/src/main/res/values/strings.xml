@@ -18,4 +18,5 @@
     <string name="author1">Diogo Pascoal</string>
     <string name="authors">Authors</string>
     <string name="time">Time</string>
+    <string name="zero_value">0</string>
 </resources>
