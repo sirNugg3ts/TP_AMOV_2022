@@ -18,7 +18,7 @@ class GameTable @JvmOverloads constructor(
     defStyleAttr : Int = 0,
     defStyleRes  : Int = 0
 ) : View(context,attrs,defStyleAttr,defStyleRes),GestureDetector.OnGestureListener {
-    lateinit var table : MutableList<Any>
+    var table : MutableList<Any> = mutableListOf(20)
     lateinit var info : GameTableActivity.GameInfo
     private var phase : Int = 1
 
@@ -27,13 +27,19 @@ class GameTable @JvmOverloads constructor(
 
     var isScrolling : Boolean = false
 
-    constructor(context: Context, binding : ActivityGameTableBinding, table : MutableList<Any>,info : GameTableActivity.GameInfo) : this(context) {
-        this.binding = binding
-        this.table = table
+
+    fun setGameInfo(info : GameTableActivity.GameInfo){
         this.info = info
     }
 
+    fun setActivityBinding(binding : ActivityGameTableBinding){
+        this.binding = binding
+    }
 
+    fun gameStart(){
+        binding.levelView.text = "Level: " + info.level.toString()
+        nextLevel()
+    }
 
     private val gestureDetector : GestureDetector by lazy {
         GestureDetector(context, this)
