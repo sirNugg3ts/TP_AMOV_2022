@@ -7,6 +7,8 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
 import pt.isec.a21280348.bigmath.utils.TableSupporter
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.checkOperation
@@ -18,8 +20,11 @@ class GameTable @JvmOverloads constructor(
     defStyleAttr : Int = 0,
     defStyleRes  : Int = 0
 ) : View(context,attrs,defStyleAttr,defStyleRes),GestureDetector.OnGestureListener {
+    data class HighValues(var higherPos : Int,var secondHigherPos: Int)
     var table : MutableList<Any> = mutableListOf(20)
     lateinit var info : GameTableActivity.GameInfo
+    lateinit var _levelLive : MutableLiveData<Int>
+    lateinit var _timeLeftLive: MutableLiveData<Int>
     private var phase : Int = 1
 
 
@@ -36,8 +41,12 @@ class GameTable @JvmOverloads constructor(
         this.binding = binding
     }
 
+    fun setLiveData(_levelLive : MutableLiveData<Int>, _timeLeftLive : MutableLiveData<Int>){
+        this._levelLive = _levelLive
+        this._timeLeftLive = _timeLeftLive
+    }
+
     fun gameStart(){
-        binding.levelView.text = "Level: " + info.level.toString()
         nextLevel()
     }
 
@@ -125,7 +134,7 @@ class GameTable @JvmOverloads constructor(
 
     fun nextLevel(){
 
-        table = TableSupporter.generateTable(info.level)
+        table = TableSupporter.generateTable( _levelLive.value!!)
         var it = table.iterator()
         Log.i("a",table.toString())
         for(i in 0..24){
@@ -211,38 +220,38 @@ class GameTable @JvmOverloads constructor(
 
     fun calculatePlay(play : Int) {
         checkPlay(play)
-        nextLevel()
+        if(!info.inTurn)
+            nextLevel()
     }
 
     fun checkPlay(chosen : Int){
         //1 -> line   one;
         //4 -> column one,
         //etc...
-        if(chosen == checkBigger()) {
+        if(chosen == checkBigger().higherPos) {
             if((phase++) > 4) {
                 phase = 1
-                info.level++
-                binding.levelPhase.text = ""
+                //info.level++
+                _levelLive.postValue(_levelLive.value!! + 1)
+                binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
                 info.inTurn = true
-                binding.levelView.text =  "Level: " +info.level.toString()
             }else{
                 binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
-            }
-            info.currentScore += 2 * info.level
+
+            info.currentScore += 2 *  _levelLive.value!!
             binding.tvScore.setTextColor(resources.getColor(R.color.rightChoice))
             binding.tvScore.animate().setDuration(750).withEndAction { binding.tvScore.setTextColor(Color.BLACK) }.start()
-            if(info.currentTime < 55)
-                info.currentTime += 5
+            if(_timeLeftLive.value!! < (55 - (_levelLive.value!! - 1)*5))
+                _timeLeftLive.postValue((_timeLeftLive.value!! +5))
             else
-                info.currentTime = 60
-            binding.timeCounter?.post {
-                binding.timeCounter.text = (info.currentTime).toString()
+                _timeLeftLive.postValue( (60 - (_levelLive.value!! - 1) * 5))
             }
+
         }
         else {
             binding.tvScore.setTextColor(resources.getColor(R.color.wrongChoice))
             binding.tvScore.animate().setDuration(750).withEndAction { binding.tvScore.setTextColor(Color.BLACK) }.start()
-            info.currentScore -= (info.level* 1.3).toInt();
+            info.currentScore -= (_levelLive.value!!* 1.3).toInt();
             if(info.currentScore < 0)
                 info.currentScore = 0
 
@@ -252,46 +261,73 @@ class GameTable @JvmOverloads constructor(
     }
 
 
-    fun checkBigger() : Int{
+    fun checkBigger() : HighValues{
         var bigger :Double = 0.0
         var biggerId: Int = 0
+
+        var secondBigger :Double = 0.0
+        var secondBiggerId: Int = 0
+
         var value: Double = 0.0
         value = checkOperation(table.get(0) as Int,table.get(1) as Char,table.get(2) as Int,table.get(3) as Char,table.get(4) as Int)
         if(value > bigger) {
             biggerId = 1
             bigger = value
+        }else if(value > secondBigger){
+            secondBiggerId = 1
+            secondBigger = value
         }
 
         value = checkOperation(table.get(8) as Int,table.get(9) as Char,table.get(10) as Int,table.get(11) as Char,table.get(12) as Int)
         if(value > bigger) {
             biggerId = 2
             bigger = value
+        }else if(value > secondBigger){
+            secondBiggerId = 2
+            secondBigger = value
         }
 
         value = checkOperation(table.get(16) as Int,table.get(17) as Char,table.get(18) as Int,table.get(19) as Char,table.get(20) as Int)
         if(value > bigger) {
             biggerId = 3
             bigger = value
+        }else if(value > secondBigger){
+            secondBiggerId = 3
+            secondBigger = value
         }
 
         value = checkOperation(table.get(0) as Int,table.get(5) as Char,table.get(8) as Int,table.get(13) as Char,table.get(16) as Int)
         if(value > bigger) {
             biggerId = 4
             bigger = value
+        }else if(value > secondBigger){
+            secondBiggerId = 4
+            secondBigger = value
         }
 
         value = checkOperation(table.get(2) as Int,table.get(6) as Char,table.get(10) as Int,table.get(14) as Char,table.get(18) as Int)
         if(value > bigger) {
             biggerId = 5
             bigger = value
+        }else if(value > secondBigger){
+            secondBiggerId = 5
+            secondBigger = value
         }
 
         value = checkOperation(table.get(4) as Int,table.get(7) as Char,table.get(12) as Int,table.get(15) as Char,table.get(20) as Int)
         if(value > bigger) {
             biggerId = 6
+        }else if(value > secondBigger){
+            secondBiggerId = 6
+            secondBigger = value
         }
 
-       return biggerId
+
+        val calculatedValues = HighValues(biggerId,secondBiggerId)
+
+        return calculatedValues
     }
+
+
 
 }
