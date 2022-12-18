@@ -238,19 +238,35 @@ class GameTable @JvmOverloads constructor(
             }else{
                 binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
 
-            info.currentScore += 2 *  _levelLive.value!!
-            binding.tvScore.setTextColor(resources.getColor(R.color.rightChoice))
-            binding.tvScore.animate().setDuration(750).withEndAction { binding.tvScore.setTextColor(Color.BLACK) }.start()
-            if(_timeLeftLive.value!! < (55 - (_levelLive.value!! - 1)*5))
-                _timeLeftLive.postValue((_timeLeftLive.value!! +5))
-            else
-                _timeLeftLive.postValue( (60 - (_levelLive.value!! - 1) * 5))
-            }
+                info.currentScore += 2 *  _levelLive.value!!
+
+                binding.tvScore.setTextColor(resources.getColor(R.color.rightChoice))
+                binding.tvScore.animate().setDuration(750).withEndAction {
+                    binding.tvScore.setTextColor(Color.BLACK) }.start()
+
+                binding.scoreSign.text = "↑"
+                binding.scoreSign.setTextColor(resources.getColor(R.color.rightChoice))
+                binding.scoreSign.animate().setDuration(750).withEndAction {
+                    binding.scoreSign.text = ""
+                }.start()
+
+
+                if(_timeLeftLive.value!! < (55 - (_levelLive.value!! - 1)*5))
+                    _timeLeftLive.postValue((_timeLeftLive.value!! +5))
+                else
+                    _timeLeftLive.postValue( (60 - (_levelLive.value!! - 1) * 5))
+                }
 
         }
         else {
             binding.tvScore.setTextColor(resources.getColor(R.color.wrongChoice))
             binding.tvScore.animate().setDuration(750).withEndAction { binding.tvScore.setTextColor(Color.BLACK) }.start()
+
+            binding.scoreSign.text = "↓"
+            binding.scoreSign.setTextColor(resources.getColor(R.color.wrongChoice))
+            binding.scoreSign.animate().setDuration(750).withEndAction {
+                binding.scoreSign.text = "" }.start()
+
             info.currentScore -= (_levelLive.value!!* 1.3).toInt();
             if(info.currentScore < 0)
                 info.currentScore = 0

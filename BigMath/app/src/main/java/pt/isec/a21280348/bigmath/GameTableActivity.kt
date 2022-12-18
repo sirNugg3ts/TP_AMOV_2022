@@ -2,6 +2,7 @@ package pt.isec.a21280348.bigmath
 
 import android.content.ClipData.Item
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -74,9 +75,15 @@ class GameTableActivity : AppCompatActivity() {
             if (info.inTurn) {
                 paused = !paused
                 if (paused) {
-                    binding.btnPause.setImageResource(R.drawable.ic_baseline_play_arrow_42)
+                    if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+                        binding.btnPause.setImageResource(R.drawable.ic_baseline_play_arrow_42)
+                    else
+                        binding.btnPause.setImageResource(R.drawable.ic_baseline_play_arrow_14)
                 } else {
-                    binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_42)
+                    if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+                        binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_42)
+                    else
+                        binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_14   )
 
                 }
             }
@@ -97,17 +104,38 @@ class GameTableActivity : AppCompatActivity() {
                     runOnUiThread {
                         menuItem.title = "Level: " + _levelLive.value.toString()
                     }
-                    binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_42)
+                    if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        runOnUiThread {
+                            binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_42)
+                        }
+                    } else{
+                        runOnUiThread {
+                            binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_14)
+                        }
+                    }
                     while(pausetime > 0){
                         if(!paused){
                             pausetime -=1
-                            binding.levelView.text = "Next level in " + pausetime + " seconds!"
+                            runOnUiThread {
+                                binding.levelView.text = "Next level in " + pausetime + " seconds!"
+                            }
                         }
                         Thread.sleep(1000)
                     }
-                    binding.levelView.text = ""
-                    binding.levelPhase.text = ""
-                    binding.btnPause.setImageResource(R.drawable.ic_outline_empty_origin_42)
+                    runOnUiThread {
+                        binding.levelView.text = ""
+                        binding.levelPhase.text = ""
+                    }
+                    if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        runOnUiThread {
+                            binding.btnPause.setImageResource(R.drawable.ic_outline_empty_origin_42)
+                        }
+                    }
+                    else {
+                        runOnUiThread {
+                            binding.btnPause.setImageResource(R.drawable.ic_outline_empty_origin_14)
+                        }
+                    }
                     info.inTurn = false
                     gameTable.gameStart()
                 }
