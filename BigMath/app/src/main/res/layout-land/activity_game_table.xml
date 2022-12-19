@@ -13,7 +13,7 @@
         android:orientation="vertical"
         tools:context=".GameTableActivity"
         android:layout_weight="1"
-        android:paddingHorizontal="120dp">
+        android:paddingHorizontal="185dp">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -359,39 +359,7 @@
             </LinearLayout>
         </FrameLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="18sp"
-            android:text="@string/score"
-            android:layout_gravity="center"
-            android:textAlignment="center">
-        </TextView>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:text="@string/zero_value"
-                android:id="@+id/tvScore"
-                android:layout_centerInParent="true"
-                android:layout_marginEnd="5dp"
-                >
-            </TextView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:layout_toEndOf="@id/tvScore"
-                android:id="@+id/scoreSign" />
-        </RelativeLayout>
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -430,5 +398,51 @@
         android:id="@+id/timeCounter"
         android:layout_toStartOf="@id/timeLabel"
         />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/zero_value"
+            android:layout_centerVertical="true"
+            android:textAlignment="center"
+            android:id="@+id/tvScore"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+
+            >
+        </TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+
+            android:layout_marginBottom="20dp"
+            android:textSize="18sp"
+            android:text="@string/score"
+            android:layout_alignBottom="@id/tvScore"
+            android:id="@+id/scoreNameLabel"
+
+            >
+        </TextView>
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_toEndOf="@id/tvScore"
+            android:layout_alignRight="@id/scoreNameLabel"
+            android:layout_alignBottom="@id/tvScore"
+            android:id="@+id/scoreSign" />
+    </RelativeLayout>
 
 </RelativeLayout>

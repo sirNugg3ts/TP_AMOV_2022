@@ -28,6 +28,7 @@ class GameTable @JvmOverloads constructor(
     private var phase : Int = 1
 
 
+
     private lateinit var binding : ActivityGameTableBinding
 
     var isScrolling : Boolean = false
@@ -231,9 +232,18 @@ class GameTable @JvmOverloads constructor(
         if(chosen == checkBigger().higherPos) {
             if((phase++) > 4) {
                 phase = 1
-                //info.level++
                 _levelLive.postValue(_levelLive.value!! + 1)
                 binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
+                info.currentScore += 2 *  _levelLive.value!!
+                binding.tvScore.setTextColor(resources.getColor(R.color.rightChoice))
+                binding.tvScore.animate().setDuration(750).withEndAction {
+                    binding.tvScore.setTextColor(Color.BLACK) }.start()
+                binding.scoreSign.text = "↑"
+                binding.scoreSign.setTextColor(resources.getColor(R.color.rightChoice))
+                binding.scoreSign.animate().setDuration(750).withEndAction {
+                    binding.scoreSign.text = ""
+                }.start()
+
                 info.inTurn = true
             }else{
                 binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"

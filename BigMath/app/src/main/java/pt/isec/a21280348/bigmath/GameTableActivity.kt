@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
+import android.os.PersistableBundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
@@ -34,6 +36,7 @@ class GameTableActivity : AppCompatActivity() {
     lateinit var gameTable : GameTable
     var info : GameInfo = GameInfo(0,false)
     var table : MutableList<Any> = mutableListOf(20)
+    var tableInt : MutableList<Int> = mutableListOf(20)
     var paused : Boolean = false
     var firstObserved : Boolean = true
 
@@ -160,10 +163,14 @@ class GameTableActivity : AppCompatActivity() {
         return true
     }
 
-
-    fun confirmQuit(){
-
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
     }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
 
     fun tableReset(){
         binding.cell1.text = ""
@@ -192,7 +199,6 @@ class GameTableActivity : AppCompatActivity() {
         binding.cell24.text = ""
         binding.cell25.text = ""
     }
-
 
     companion object{
         val GAMETIME : Int = 60
