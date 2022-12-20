@@ -13,30 +13,47 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.core.view.get
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.generateTable
 import kotlin.concurrent.thread
 
+
+class MyViewModel : ViewModel(){
+    var table :  MutableList<Any>  = mutableListOf(20)
+    var _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
+    var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GameTableActivity.GAMETIME }
+    var score : Int = 0
+    var phase : Int = 1
+    lateinit var levelLive : LiveData<Int>
+    lateinit var timeLeftLive : LiveData<Int>
+}
+
 class GameTableActivity : AppCompatActivity() {
     data class GameInfo(var currentScore : Int,var inTurn : Boolean)
+    val model : MyViewModel by viewModels()
     private lateinit var binding : ActivityGameTableBinding
-    private val _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
-    private val _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GAMETIME }
+    private var _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
+    private var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GAMETIME }
     private lateinit var menuItem : MenuItem
+    private lateinit var timeThread : Thread
+    var threadStop : Boolean = false
 
-    private val levelLive : LiveData<Int>
+
+    private var levelLive : LiveData<Int>
         get() = _levelLive
+        set(value) {}
 
-    private val timeLeftLive : LiveData<Int>
+    private var timeLeftLive : LiveData<Int>
         get() = _timeLeftLive
+        set(value) {}
 
     lateinit var gameTable : GameTable
     var info : GameInfo = GameInfo(0,false)
-    var table : MutableList<Any> = mutableListOf(20)
-    var tableInt : MutableList<Int> = mutableListOf(20)
     var paused : Boolean = false
     var firstObserved : Boolean = true
 
@@ -57,22 +74,6 @@ class GameTableActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Math Game"
 
-        val r = Thread{
-
-            while(_timeLeftLive.value!! > 0) {
-                if(info.inTurn){
-                }
-                else if (!paused) {
-                    _timeLeftLive.postValue( (_timeLeftLive.value!! - 1))
-                }
-                Thread.sleep(1000)
-            }
-            val intent = Intent(this,ScoreboardActivity::class.java)
-            intent.putExtra("score",gameTable.getFinalScore())
-            startActivity(intent)
-        }
-
-
 
         binding.btnPause.setOnClickListener {
             if (info.inTurn) {
@@ -91,7 +92,36 @@ class GameTableActivity : AppCompatActivity() {
                 }
             }
         }
-        r.start()
+
+        timeThread = Thread{
+            Log.i("THREAD","Thread iniciado")
+            while(_timeLeftLive.value!! > 0) {
+                Log.i("THREAD",_timeLeftLive.value!!.toString())
+                if(info.inTurn){
+                }
+                else if (!paused) {
+                    _timeLeftLive.postValue( (_timeLeftLive.value!! - 1))
+                }
+                Thread.sleep(1000)
+                if(threadStop)
+                    break
+            }
+            if(!threadStop) {
+                val intent = Intent(this, ScoreboardActivity::class.java)
+                intent.putExtra("score", gameTable.getFinalScore())
+                startActivity(intent)
+            }
+        }
+
+
+        timeThread.start()
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.i("Start","onStart")
+
         gameTable.gameStart()
         levelLive.observe(this){
             if(firstObserved) {
@@ -145,7 +175,6 @@ class GameTableActivity : AppCompatActivity() {
             }
         }
 
-
         timeLeftLive.observe(this){
             Log.i("TIME",_timeLeftLive.value.toString())
             binding.timeCounter.text = _timeLeftLive.value.toString()
@@ -153,10 +182,12 @@ class GameTableActivity : AppCompatActivity() {
         }
 
 
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater : MenuInflater = menuInflater
+        Log.i("MENU","MENU CRIADO")
         inflater.inflate(R.menu.table_menu,menu)
         menuItem = menu[0]
         menuItem.title = "Level: " + _levelLive.value.toString()
@@ -165,10 +196,89 @@ class GameTableActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        Log.i("SAVE","WILL SAVE")
+        model.table = gameTable.getGameTable()
+        model._levelLive = _levelLive
+        model._timeLeftLive = _timeLeftLive
+        model.timeLeftLive = timeLeftLive
+        model.levelLive = levelLive
+        model.score = gameTable.getFinalScore()
+        model.phase = gameTable.getPhase()
+        threadStop = true
+
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
+        Log.i("RESTORE","WILL RESTORE")
+        Log.i("RESTORE",model.table.toString())
+        //menuItem.title = "Level: " + _levelLive.value.toString()
+        _levelLive = model._levelLive
+        _timeLeftLive = model._timeLeftLive
+        timeLeftLive = model.timeLeftLive
+        levelLive = model.levelLive
+        info = GameInfo(model.score,false)
+        gameTable.restoreState(false,model.table,info,model.phase)
+
+        /*
+        levelLive.observe(this){
+            if(firstObserved) {
+                firstObserved = false
+            }
+            else {
+                tableReset()
+                binding.levelView.text = "Next level in " + 5 + " seconds!"
+                binding.timeCounter.text = ""
+                _timeLeftLive.value = 60 - (5 * (_levelLive.value!!-1))
+                thread {
+                    var pausetime = 5
+                    runOnUiThread {
+                        //menuItem.title = "Level: " + _levelLive.value.toString()
+                    }
+                    if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        runOnUiThread {
+                            binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_42)
+                        }
+                    } else{
+                        runOnUiThread {
+                            binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_14)
+                        }
+                    }
+                    while(pausetime > 0){
+                        if(!paused){
+                            pausetime -=1
+                            runOnUiThread {
+                                binding.levelView.text = "Next level in " + pausetime + " seconds!"
+                            }
+                        }
+                        Thread.sleep(1000)
+                    }
+                    runOnUiThread {
+                        binding.levelView.text = ""
+                        binding.levelPhase.text = ""
+                    }
+                    if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        runOnUiThread {
+                            binding.btnPause.setImageResource(R.drawable.ic_outline_empty_origin_42)
+                        }
+                    }
+                    else {
+                        runOnUiThread {
+                            binding.btnPause.setImageResource(R.drawable.ic_outline_empty_origin_14)
+                        }
+                    }
+                    info.inTurn = false
+                    gameTable.gameStart()
+                }
+            }
+        }*/
+
+        timeLeftLive.observe(this){
+            Log.i("TIME",_timeLeftLive.value.toString())
+            binding.timeCounter.text = _timeLeftLive.value.toString()
+        }
+
+
     }
 
 

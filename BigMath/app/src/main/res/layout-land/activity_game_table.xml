@@ -370,16 +370,6 @@
             android:id="@+id/btnPause" />
 
     </LinearLayout>
-    <!--<Button android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textColor="@color/operator_cell"
-        android:background="@drawable/pause_button"
-        android:drawableBottom="@drawable/pause_button"
-        android:id="@+id/btnPause">
-    </Button>-->
-
-
 
     <ImageView
         android:layout_width="wrap_content"

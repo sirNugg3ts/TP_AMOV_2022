@@ -42,13 +42,30 @@ class GameTable @JvmOverloads constructor(
         this.binding = binding
     }
 
+    fun getPhase() : Int{
+        return phase
+    }
+
     fun setLiveData(_levelLive : MutableLiveData<Int>, _timeLeftLive : MutableLiveData<Int>){
         this._levelLive = _levelLive
         this._timeLeftLive = _timeLeftLive
     }
 
+    fun getGameTable(): MutableList<Any> {
+        return table
+    }
+
     fun gameStart(){
         nextLevel()
+    }
+
+    fun restoreState(newTable : Boolean = true,theTable : MutableList<Any> = arrayListOf(20),info :GameTableActivity.GameInfo,phase : Int){
+        nextLevel(newTable,theTable)
+        this.info = info
+        binding.tvScore.text = info.currentScore.toString()
+        this.phase = phase
+        for(i in phase downTo 2)
+            binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
     }
 
     private val gestureDetector : GestureDetector by lazy {
@@ -133,9 +150,13 @@ class GameTable @JvmOverloads constructor(
         return info.currentScore
     }
 
-    fun nextLevel(){
+    fun nextLevel(newTable : Boolean = true,theTable : MutableList<Any> = arrayListOf(20)){
 
-        table = TableSupporter.generateTable( _levelLive.value!!)
+        if(newTable)
+            table = TableSupporter.generateTable( _levelLive.value!!)
+        else
+            table = theTable
+
         var it = table.iterator()
         Log.i("a",table.toString())
         for(i in 0..24){
