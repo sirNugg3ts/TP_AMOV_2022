@@ -59,13 +59,16 @@ class GameTable @JvmOverloads constructor(
         nextLevel()
     }
 
-    fun restoreState(newTable : Boolean = true,theTable : MutableList<Any> = arrayListOf(20),info :GameTableActivity.GameInfo,phase : Int){
+    fun restoreState(newTable : Boolean = true,theTable : MutableList<Any> = arrayListOf(20),
+                     info :GameTableActivity.GameInfo,phase : Int,
+                     _levelLive: MutableLiveData<Int>,_timeLeftLive: MutableLiveData<Int>){
         nextLevel(newTable,theTable)
         this.info = info
         binding.tvScore.text = info.currentScore.toString()
         this.phase = phase
         for(i in phase downTo 2)
             binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
+        setLiveData(_levelLive,_timeLeftLive)
     }
 
     private val gestureDetector : GestureDetector by lazy {
