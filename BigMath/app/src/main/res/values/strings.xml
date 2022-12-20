@@ -19,4 +19,12 @@
     <string name="authors">Authors</string>
     <string name="time">Time</string>
     <string name="zero_value">0</string>
+    <string name="multiplyer_title">Multiplyer Mode</string>
+    <string name="msg_multiplyer_initializer">You want to play as a Server or Client?</string>
+    <string name="client_btn">Client</string>
+    <string name="server_btn">Server</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="ipInformation">Server IP Adress:</string>
+    <string name="clientConnect">Connect</string>
+    <string name="clientConnectEmulator">Connect to Emulator</string>
 </resources>

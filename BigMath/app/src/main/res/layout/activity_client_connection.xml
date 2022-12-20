@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:orientation="vertical"
+
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/ipInformation"
+            android:layout_marginTop="10dp"
+            />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:id="@+id/tfIPAdressByClient"
+            android:hint="0.0.0.0"
+            android:maxLength="15"
+            android:maxLines="1"
+            android:layout_marginTop="20dp"
+            >
+        </EditText>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnClientConnect"
+            android:padding="10dp"
+            android:layout_marginTop="50dp"
+            android:text="@string/clientConnect"
+            android:textSize="18sp"
+            android:background="@drawable/round_btn"
+            android:drawableLeft="@drawable/ic_connection" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnClientConnectEmulator"
+            android:padding="10dp"
+            android:layout_marginTop="15dp"
+            android:text="@string/clientConnectEmulator"
+            android:textSize="18sp"
+            android:background="@drawable/round_btn"
+            android:drawableLeft="@drawable/ic_emulator_connect"/>
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

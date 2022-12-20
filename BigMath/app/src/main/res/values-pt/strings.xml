@@ -19,4 +19,13 @@
     <string name="firstName">Primeiro Nome</string>
     <string name="lastName">Apelido</string>
     <string name="time">Tempo</string>
+    <string name="zero_value">0</string>
+    <string name="multiplyer_title">Modo MultiJogador</string>
+    <string name="msg_multiplyer_initializer">Quer jogar como Servidor ou Cliente?</string>
+    <string name="client_btn">Cliente</string>
+    <string name="server_btn">Servidor</string>
+    <string name="cancel_btn">Cancelar</string>
+    <string name="ipInformation">IP do servidor:</string>
+    <string name="clientConnect">Ligar</string>
+    <string name="clientConnectEmulator">Ligar a um Emulador</string>
 </resources>

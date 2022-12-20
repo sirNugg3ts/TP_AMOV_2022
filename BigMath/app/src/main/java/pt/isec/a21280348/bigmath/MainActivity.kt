@@ -1,11 +1,14 @@
 package pt.isec.a21280348.bigmath
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.Toast
 import pt.isec.a21280348.bigmath.databinding.ActivityMainBinding
+import pt.isec.a21280348.bigmath.multiplayer.ClientConnectionActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -33,7 +36,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnMultiplayer.setOnClickListener{
-            Toast.makeText(this,"Not implemented yet",Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this,"Not implemented yet",Toast.LENGTH_SHORT).show()
+
+            val dlg = AlertDialog.Builder(this)
+                .setTitle(R.string.multiplyer_title)
+                .setMessage(R.string.msg_multiplyer_initializer)
+                .setNeutralButton(R.string.server_btn) { _: DialogInterface, _: Int ->
+                    startActivity(LobbyActivity.getServerModeIntent(this))
+                }
+
+                .setNegativeButton(R.string.cancel_btn) {  _: DialogInterface, _: Int ->
+                    closeContextMenu()
+                }
+                .setPositiveButton(R.string.client_btn) { _: DialogInterface, _: Int ->
+                    val intent = Intent(this, ClientConnectionActivity::class.java)
+                    startActivity(intent)
+                }
+
+                .setCancelable(false)
+                .create()
+
+            dlg.show()
+
         }
 
         binding.btnCredits.setOnClickListener{
