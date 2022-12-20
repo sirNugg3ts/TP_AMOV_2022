@@ -1,0 +1,15 @@
+O jogador vai acumulando pontos por cada nível que conclui, os quais serão contabilizados da
+seguinte forma:
+• 2 pontos por cada expressão assinalada que corresponda ao valor máximo entre as
+expressões presentes no quadro
+• 1 ponto por cada expressão assinalada que corresponda ao segundo maior valor
+Por estratégia de jogo, um jogador pode optar por escolher propositadamente a segunda expressão
+com valor mais alto para obter mais pontos antes de atingir o tempo limite e o número de respostas
+previstas para o nível.
+Quando o jogador termina um nível, o próximo nível iniciar-se-á automaticamente após 5 segundos.
+Durante esta passagem entre níveis deverá ser possível colocar o jogo em modo pausa. Se o jogador
+tentar terminar o jogo (através da tecla “Back”) durante o jogo, deverá aparecer uma janela de
+diálogo para confirmação (o relógio de controlo do nível não deverá ser parado durante a
+visualização desta caixa de diálogo).
+Deverá ser mantido um Top 5 na Firestore que permita guardar os jogos solitários com pontuações
+mais elevadas e tempos totais de jogo (tempo efetivo de jogo, não incluindo as pausas entre níveis).
