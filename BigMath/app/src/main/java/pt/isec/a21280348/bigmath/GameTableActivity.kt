@@ -123,6 +123,61 @@ class GameTableActivity : AppCompatActivity() {
         Log.i("Start","onStart")
 
         gameTable.gameStart()
+        registLevelObserver()
+        registTimeObserver()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater : MenuInflater = menuInflater
+        Log.i("MENU","MENU CRIADO")
+        inflater.inflate(R.menu.table_menu,menu)
+        menuItem = menu[0]
+        menuItem.title = "Level: " + _levelLive.value.toString()
+        return true
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.i("SAVE","WILL SAVE")
+        model.table = gameTable.getGameTable()
+        model._levelLive = _levelLive
+        model._timeLeftLive = _timeLeftLive
+        model.timeLeftLive = timeLeftLive
+        model.levelLive = levelLive
+        model.score = gameTable.getFinalScore()
+        model.phase = gameTable.getPhase()
+        threadStop = true
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        Log.i("RESTORE","WILL RESTORE")
+        Log.i("RESTORE",model.table.toString())
+        //menuItem.title = "Level: " + _levelLive.value.toString()
+        _levelLive = model._levelLive
+        _timeLeftLive = model._timeLeftLive
+        timeLeftLive = model.timeLeftLive
+        levelLive = model.levelLive
+        info = GameInfo(model.score,false)
+        gameTable.restoreState(false,model.table,info,model.phase,_levelLive,_timeLeftLive)
+
+        firstObserved = true
+        registLevelObserver()
+        timeLeftLive.observe(this){
+            Log.i("TIME",_timeLeftLive.value.toString())
+            binding.timeCounter.text = _timeLeftLive.value.toString()
+        }
+    }
+
+    private fun registTimeObserver(){
+        timeLeftLive.observe(this){
+            Log.i("TIME",_timeLeftLive.value.toString())
+            binding.timeCounter.text = _timeLeftLive.value.toString()
+        }
+    }
+
+    private fun registLevelObserver(){
         levelLive.observe(this){
             if(firstObserved) {
                 firstObserved = false
@@ -175,114 +230,10 @@ class GameTableActivity : AppCompatActivity() {
             }
         }
 
-        timeLeftLive.observe(this){
-            Log.i("TIME",_timeLeftLive.value.toString())
-            binding.timeCounter.text = _timeLeftLive.value.toString()
-
-        }
-
-
-
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater : MenuInflater = menuInflater
-        Log.i("MENU","MENU CRIADO")
-        inflater.inflate(R.menu.table_menu,menu)
-        menuItem = menu[0]
-        menuItem.title = "Level: " + _levelLive.value.toString()
-        return true
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Log.i("SAVE","WILL SAVE")
-        model.table = gameTable.getGameTable()
-        model._levelLive = _levelLive
-        model._timeLeftLive = _timeLeftLive
-        model.timeLeftLive = timeLeftLive
-        model.levelLive = levelLive
-        model.score = gameTable.getFinalScore()
-        model.phase = gameTable.getPhase()
-        threadStop = true
-
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        Log.i("RESTORE","WILL RESTORE")
-        Log.i("RESTORE",model.table.toString())
-        //menuItem.title = "Level: " + _levelLive.value.toString()
-        _levelLive = model._levelLive
-        _timeLeftLive = model._timeLeftLive
-        timeLeftLive = model.timeLeftLive
-        levelLive = model.levelLive
-        info = GameInfo(model.score,false)
-        gameTable.restoreState(false,model.table,info,model.phase)
-
-        /*
-        levelLive.observe(this){
-            if(firstObserved) {
-                firstObserved = false
-            }
-            else {
-                tableReset()
-                binding.levelView.text = "Next level in " + 5 + " seconds!"
-                binding.timeCounter.text = ""
-                _timeLeftLive.value = 60 - (5 * (_levelLive.value!!-1))
-                thread {
-                    var pausetime = 5
-                    runOnUiThread {
-                        //menuItem.title = "Level: " + _levelLive.value.toString()
-                    }
-                    if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        runOnUiThread {
-                            binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_42)
-                        }
-                    } else{
-                        runOnUiThread {
-                            binding.btnPause.setImageResource(R.drawable.ic_baseline_pause_14)
-                        }
-                    }
-                    while(pausetime > 0){
-                        if(!paused){
-                            pausetime -=1
-                            runOnUiThread {
-                                binding.levelView.text = "Next level in " + pausetime + " seconds!"
-                            }
-                        }
-                        Thread.sleep(1000)
-                    }
-                    runOnUiThread {
-                        binding.levelView.text = ""
-                        binding.levelPhase.text = ""
-                    }
-                    if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        runOnUiThread {
-                            binding.btnPause.setImageResource(R.drawable.ic_outline_empty_origin_42)
-                        }
-                    }
-                    else {
-                        runOnUiThread {
-                            binding.btnPause.setImageResource(R.drawable.ic_outline_empty_origin_14)
-                        }
-                    }
-                    info.inTurn = false
-                    gameTable.gameStart()
-                }
-            }
-        }*/
-
-        timeLeftLive.observe(this){
-            Log.i("TIME",_timeLeftLive.value.toString())
-            binding.timeCounter.text = _timeLeftLive.value.toString()
-        }
-
-
     }
 
 
-    fun tableReset(){
+    private fun tableReset(){
         binding.cell1.text = ""
         binding.cell2.text = ""
         binding.cell3.text = ""

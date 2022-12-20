@@ -59,13 +59,16 @@ class GameTable @JvmOverloads constructor(
         nextLevel()
     }
 
-    fun restoreState(newTable : Boolean = true,theTable : MutableList<Any> = arrayListOf(20),info :GameTableActivity.GameInfo,phase : Int){
+    fun restoreState(newTable : Boolean = true,theTable : MutableList<Any> = arrayListOf(20),
+                     info :GameTableActivity.GameInfo,phase : Int,
+                     _levelLive: MutableLiveData<Int>,_timeLeftLive: MutableLiveData<Int>){
         nextLevel(newTable,theTable)
         this.info = info
         binding.tvScore.text = info.currentScore.toString()
         this.phase = phase
         for(i in phase downTo 2)
             binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
+        setLiveData(_levelLive,_timeLeftLive)
     }
 
     private val gestureDetector : GestureDetector by lazy {
@@ -250,12 +253,16 @@ class GameTable @JvmOverloads constructor(
         //1 -> line   one;
         //4 -> column one,
         //etc...
-        if(chosen == checkBigger().higherPos) {
+        var values : HighValues = checkBigger()
+        if(chosen == values.higherPos || chosen == values.secondHigherPos) {
             if((phase++) > 4) {
                 phase = 1
                 _levelLive.postValue(_levelLive.value!! + 1)
                 binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
-                info.currentScore += 2 *  _levelLive.value!!
+                if(chosen == values.higherPos)
+                    info.currentScore +=  2
+                else
+                    info.currentScore +=  1
                 binding.tvScore.setTextColor(resources.getColor(R.color.rightChoice))
                 binding.tvScore.animate().setDuration(750).withEndAction {
                     binding.tvScore.setTextColor(Color.BLACK) }.start()
@@ -269,7 +276,10 @@ class GameTable @JvmOverloads constructor(
             }else{
                 binding.levelPhase.text  = binding.levelPhase.text.toString() + "🔷"
 
-                info.currentScore += 2 *  _levelLive.value!!
+                if(chosen == values.higherPos)
+                    info.currentScore +=  2
+                else
+                    info.currentScore +=  1
 
                 binding.tvScore.setTextColor(resources.getColor(R.color.rightChoice))
                 binding.tvScore.animate().setDuration(750).withEndAction {
