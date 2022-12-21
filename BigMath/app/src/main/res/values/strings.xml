@@ -27,4 +27,5 @@
     <string name="ipInformation">Server IP Adress:</string>
     <string name="clientConnect">Connect</string>
     <string name="clientConnectEmulator">Connect to Emulator</string>
+    <string name="user_avatar">User Avatar</string>
 </resources>
