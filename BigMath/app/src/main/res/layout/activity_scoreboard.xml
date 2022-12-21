@@ -7,7 +7,21 @@
     tools:context=".ScoreboardActivity"
     android:padding="16dp">
 
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SCOREBOARD"
+        android:textSize="24sp"
+        android:textAlignment="center"
+        android:id="@+id/scoreTVLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="#ff5757"/>
+
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginTop="10dp"
         android:padding="4dp"
         android:id="@+id/scoreList"
         android:layout_width="0dp"
@@ -15,7 +29,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/scoreTVLabel">
 
     </androidx.recyclerview.widget.RecyclerView>
 

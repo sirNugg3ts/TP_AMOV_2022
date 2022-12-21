@@ -2,6 +2,7 @@ package pt.isec.a21280348.bigmath
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -23,7 +24,7 @@ class ScoreboardActivity : AppCompatActivity() {
         setContentView(binding.root)
         //val score = intent.getIntExtra("score",5)
 
-        for(i in 0..5){
+        for(i in 0..4){
             highScores.add(ScoreData( ("user_" + i.toString()) , i , "..."))
         }
 
@@ -37,19 +38,31 @@ class ScoreboardActivity : AppCompatActivity() {
         class ViewHolder(val view : View): RecyclerView.ViewHolder(view){
             var usernameTV : TextView = view.findViewById(R.id.tvname)
             var scoreTV : TextView = view.findViewById(R.id.tvscore)
-            //var avatarIMG : ImageView = view.findViewById(R.id.userAvatar)
+            var avatarIMG : ImageView = view.findViewById(R.id.userAvatar)
+
+            fun update(newData : ScoreData){
+                usernameTV.text = newData.userName;
+                scoreTV.text = "Score: " + newData.score;
+                //avatarIMG.setImageResource( ... )
+            }
         }
 
+
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            TODO("Not yet implemented")
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.recyclerview_score,parent,false)
+            view.tag = " "+(nr++)
+            return ViewHolder(view)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            TODO("Not yet implemented")
+            holder.update(data[position])
         }
 
-        override fun getItemCount(): Int {
-            TODO("Not yet implemented")
-        }
+        override fun getItemCount(): Int = data.size
+    }
+
+    companion object{
+        var nr : Int = 0
     }
 }
