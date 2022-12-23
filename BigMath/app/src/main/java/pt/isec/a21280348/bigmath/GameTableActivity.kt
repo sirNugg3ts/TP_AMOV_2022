@@ -18,13 +18,26 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
+import pt.isec.a21280348.bigmath.multiplayer.ConnectionState
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.generateTable
+import java.io.InputStream
+import java.io.OutputStream
+import java.net.ConnectException
+import java.net.InetSocketAddress
+import java.net.ServerSocket
+import java.net.Socket
+import java.net.SocketException
 import kotlin.concurrent.thread
 import androidx.activity.viewModels
 
 
 
 class MyViewModel : ViewModel(){
+
+    companion object {
+        const val SERVER_PORT = 9999
+    }
+
     var table :  MutableList<Any>  = mutableListOf(20)
     var _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
     var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GameTableActivity.GAMETIME }
@@ -32,11 +45,106 @@ class MyViewModel : ViewModel(){
     var phase : Int = 1
     lateinit var levelLive : LiveData<Int>
     lateinit var timeLeftLive : LiveData<Int>
+
+    private val _connectionState = MutableLiveData(ConnectionState.SETTING_PARAMETERS)
+    val connectionState: LiveData<ConnectionState>
+        get() = _connectionState;
+
+    private var socket: Socket? = null
+    private val socketI : InputStream?
+        get() = socket?.getInputStream()
+
+    private val socketO : OutputStream?
+        get() = socket?.getOutputStream()
+
+    private var serverSocket: ServerSocket? = null
+
+    private var threadComm: Thread? = null
+
+
+    fun startServer() {
+        if(serverSocket != null || socket != null ||
+                _connectionState.value != ConnectionState.SETTING_PARAMETERS)
+            return;
+
+        _connectionState.postValue(ConnectionState.SERVER_CONNECTING)
+
+        thread {
+            serverSocket = ServerSocket(SERVER_PORT)
+            serverSocket?.run {
+                try {
+                    val socketClient = serverSocket!!.accept()
+                    startComm(socketClient)
+                } catch (_: Exception){
+                    _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
+                } finally {
+                    serverSocket?.close()
+                    serverSocket = null
+                }
+            }
+        }
+    }
+
+    fun stopServer() {
+        serverSocket?.close()
+        _connectionState.postValue(ConnectionState.CONNECTION_ENDED)
+        serverSocket = null
+    }
+
+    fun startClient(serverIP : String, serverPort: Int = SERVER_PORT) {
+        if(socket != null || _connectionState.value != ConnectionState.SETTING_PARAMETERS)
+            return
+
+        thread {
+            _connectionState.postValue(ConnectionState.CLIENT_CONNECTING)
+            try {
+                val newSocket = Socket()
+                newSocket.connect(InetSocketAddress(serverIP,serverPort),5000)
+                startComm(newSocket)
+
+            } catch (_: Exception){
+                _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
+                stopGame()
+            }
+        }
+    }
+
+
+    private fun startComm(newSocket: Socket) {
+        if(threadComm != null)
+            return
+
+        socket = newSocket
+
+        threadComm = thread {
+            try {
+                if(socketI == null)
+                    return@thread
+
+                _connectionState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
+                val bufI = socketI!!.bufferedReader()
+
+            } catch (_: Exception){
+
+            } finally { }
+        }
+    }
+
+    fun stopGame() {
+        try {
+            //_state.postValue(State.GAME_OVER)
+            _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
+            socket?.close()
+            socket = null
+            threadComm?.interrupt()
+            threadComm = null
+        } catch (_: Exception) { }
+    }
 }
 
 class GameTableActivity : AppCompatActivity() {
     data class GameInfo(var currentScore : Int,var inTurn : Boolean)
-    val model : MyViewModel by viewModels()
+    private val model: MyViewModel by viewModels()
     private lateinit var binding : ActivityGameTableBinding
     private var _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
     private var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GAMETIME }

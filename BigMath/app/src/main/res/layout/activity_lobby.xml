@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="50dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:layout_gravity="center_horizontal"
+                android:indeterminateTint="@color/black"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtMessageLobbyIp"
+                android:textSize="20dp"
+                android:textColor="@color/black"
+                android:textAlignment="center"/>
+
+        </LinearLayout>
+
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnInvitePlayers"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:padding="10dp"
+            android:text="@string/invitePlayers"
+            android:background="@drawable/round_btn"
+            android:drawableLeft="@drawable/ic_invite_players"
+            />
+
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnStartGame"
+            android:layout_gravity="bottom"
+            android:padding="10dp"
+            android:layout_marginTop="300dp"
+            android:text="@string/startGameMultiplayer"
+            android:background="@drawable/round_btn"
+            android:drawableLeft="@drawable/ic_start"
+            />
+
+
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>
