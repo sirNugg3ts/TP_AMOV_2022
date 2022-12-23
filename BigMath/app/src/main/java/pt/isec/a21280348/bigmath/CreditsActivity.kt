@@ -3,10 +3,14 @@ package pt.isec.a21280348.bigmath
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.google.firebase.firestore.AggregateSource
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
 import pt.isec.a21280348.bigmath.databinding.ActivityCreditsBinding
+import java.util.concurrent.TimeUnit
 
 class CreditsActivity : AppCompatActivity() {
  private lateinit var binding : ActivityCreditsBinding
@@ -47,8 +51,28 @@ class CreditsActivity : AppCompatActivity() {
 
     fun updateDataToFT() {
         val db = Firebase.firestore
-        for (i in 1..5) {
+        val coll = db.collection("PointHighScores")
+        val countQuery = coll.count()
+        var size : Long = 0
 
+        countQuery.get(AggregateSource.SERVER).addOnCompleteListener{ task ->
+            if(task.isSuccessful) {
+                size = task.result.count
+                Log.i("Firebase", "Count -> " + size)
+                dataShow(size)
+                return@addOnCompleteListener
+            }else{
+                //---
+            }
+        }
+    }
+
+    fun dataShow(size : Long){
+        val db = Firebase.firestore
+
+        Log.i("Firebase", "Count -> " + size)
+
+        for (i in 1..size ) {
             val v = db.collection("PointHighScores").document("PointsScore_1")
             v.get(Source.SERVER).addOnSuccessListener {
                 val exists = it.exists()

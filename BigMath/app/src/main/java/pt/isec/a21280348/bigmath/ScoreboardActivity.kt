@@ -2,6 +2,7 @@ package pt.isec.a21280348.bigmath
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,14 +10,20 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.AggregateSource
+import com.google.firebase.firestore.Source
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
 import pt.isec.a21280348.bigmath.databinding.ActivityScoreboardBinding
 
 class ScoreboardActivity : AppCompatActivity() {
-    data class ScoreData(val userName : String, val score : Int, val bitmap : String)
+    data class ScoreData(val userName : String, val score : Long, val bitmap : String)
 
     lateinit var binding : ActivityScoreboardBinding
 
-    val highScores = arrayListOf<ScoreData>()
+    var highScores = arrayListOf<ScoreData>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,9 +31,35 @@ class ScoreboardActivity : AppCompatActivity() {
         setContentView(binding.root)
         //val score = intent.getIntExtra("score",5)
 
-        for(i in 0..4){
-            highScores.add(ScoreData( ("user_" + i.toString()) , i , "..."))
+
+
+        val db = Firebase.firestore
+        Log.i("Firebase", "Count -> " + 5)
+        var username : String = ""
+        var score : Long= 0
+        var image : String= ""
+
+        for (i in 5 downTo 1 ) {
+            val v = db.collection("PointHighScores").document("PointsScore_"+i.toString())
+            v.get(Source.SERVER).addOnSuccessListener {
+                val exists = it.exists()
+                if(!exists)
+                    return@addOnSuccessListener
+                username = it.getString("username") ?: "user"
+                score = it.getLong("score") ?: 0
+                image = it.getString("image") ?: "user"
+                //v.update("username",newStr)
+                Log.i("Firebase", username)
+                Log.i("Firebase", score.toString())
+                Log.i("Firebase", image)
+
+            }
+            highScores.add(ScoreData(username,score,image))
         }
+
+        Thread.sleep(1400)
+        Log.i("Firebase", "FINAL Count -> " + highScores.size)
+
 
         binding.scoreList.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
 
@@ -61,6 +94,73 @@ class ScoreboardActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int = data.size
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    fun updateDataToFT() : ArrayList<ScoreData>{
+        val db = Firebase.firestore
+        val coll = db.collection("PointHighScores")
+        val countQuery = coll.count()
+        var size : Long = 0
+        var scoreList = arrayListOf<ScoreData>()
+
+        countQuery.get(AggregateSource.SERVER).addOnCompleteListener{ task ->
+            if(task.isSuccessful) {
+                size = task.result.count
+                Log.i("Firebase", "Count -> " + size)
+                return@addOnCompleteListener
+            }else{
+                //...
+            }
+        }
+        scoreList = dataShow(size)
+        return scoreList
+    }
+
+    fun dataShow(size : Long): ArrayList<ScoreData> {
+        val db = Firebase.firestore
+        var scoreList = arrayListOf<ScoreData>()
+        Log.i("Firebase", "Count -> " + size)
+        for (i in 1..size ) {
+            val v = db.collection("PointHighScores").document("PointsScore_1")
+            v.get(Source.SERVER).addOnSuccessListener {
+                val exists = it.exists()
+                if (!exists) //if dont exists
+                    return@addOnSuccessListener
+                val username = it.getString("username") ?: "user"
+                val score = it.getLong("score") ?: 0
+                val image = it.getString("image") ?: "user"
+                //v.update("username",newStr)
+                Log.i("Firebase", username)
+                Log.i("Firebase", score.toString())
+                Log.i("Firebase", image)
+                scoreList.add(ScoreData(username,score,image))
+            }
+        }
+        return scoreList
+    }
+
 
     companion object{
         var nr : Int = 0
