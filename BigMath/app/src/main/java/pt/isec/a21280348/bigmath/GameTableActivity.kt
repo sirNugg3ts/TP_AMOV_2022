@@ -13,7 +13,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.core.view.get
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +20,8 @@ import androidx.lifecycle.ViewModel
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.generateTable
 import kotlin.concurrent.thread
+import androidx.activity.viewModels
+
 
 
 class MyViewModel : ViewModel(){

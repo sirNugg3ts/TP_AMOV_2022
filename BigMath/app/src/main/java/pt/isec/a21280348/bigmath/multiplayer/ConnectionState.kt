@@ -1,10 +1,6 @@
 package pt.isec.a21280348.bigmath.multiplayer
 
 enum class ConnectionState {
-    SETTING_PARAMETERS,
-    SERVER_CONNECTING,
-    CLIENT_CONNECTING,
-    CONNECTION_ESTABLISHED,
-    CONNECTION_ERROR,
-    CONNECTION_ENDED
+    AWAITING_PLAYERS,
+
 }
