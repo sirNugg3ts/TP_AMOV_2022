@@ -28,4 +28,9 @@
     <string name="ipInformation">IP do servidor:</string>
     <string name="clientConnect">Ligar</string>
     <string name="clientConnectEmulator">Ligar a um Emulador</string>
+    <string name="error_address">Endereço de IP não reconhecido</string>
+    <string name="msg_ip_address">IP do servidor: %s\nÀ espera de um cliente...</string>
+    <string name="invitePlayers">Convidar Jogadores</string>
+    <string name="startGameMultiplayer">Iniciar o Jogo</string>
+    <string name="error_phoneNumber">Número de telefone inválido!</string>
 </resources>

@@ -27,4 +27,9 @@
     <string name="ipInformation">Server IP Adress:</string>
     <string name="clientConnect">Connect</string>
     <string name="clientConnectEmulator">Connect to Emulator</string>
+    <string name="error_address">Address not recognized</string>
+    <string name="msg_ip_address">Server IP address: %s\nWaiting for a client...</string>
+    <string name="invitePlayers">Invite Players</string>
+    <string name="startGameMultiplayer">Start Game</string>
+    <string name="error_phoneNumber">Invalid phone number!</string>
 </resources>
