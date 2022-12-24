@@ -85,14 +85,14 @@ class ScoreboardActivity : AppCompatActivity() {
             }
         }*/
         Log.i("NEWWAY", "start of")
-        db.collection("PointHighScores").get().addOnSuccessListener { documents->
+        db.collection("PointHighScores").get().addOnSuccessListener { documents ->
             var i = 0
-            for(document in documents){
+            for (document in documents) {
 
-                if(document.get("username") == null){
-                    if(insertedUser)
+                if (document.get("username") == null) {
+                    if (insertedUser)
                         return@addOnSuccessListener
-                    else{
+                    else {
                         val insertData = hashMapOf(
                             "image" to playImage,
                             "score" to playScore,
@@ -103,7 +103,7 @@ class ScoreboardActivity : AppCompatActivity() {
                         highScores.add(ScoreData(playName!!, playScore, playImage!!))
                         myAdapter.notifyItemInserted(i++)
                     }
-                }else {
+                } else {
 
                     username = document.getString("username") ?: playName!!
                     score = document.getLong("score") ?: playScore
@@ -119,9 +119,48 @@ class ScoreboardActivity : AppCompatActivity() {
                 }
 
             }
-        }.addOnFailureListener{
-            Log.i("NEWWAY","DEAD")
-        }
+            if (!insertedUser)
+                highScores.add(ScoreData(playName!!, playScore, playImage!!))
+
+            val sortedScores =
+                highScores.sortedWith(compareBy({ it.score })).reversed() as ArrayList<ScoreData>
+            Log.i("SORTED", "ISTO:  " + highScores.size)
+            for (sorted in sortedScores) {
+                Log.i("SORTED", sorted.score.toString())
+            }
+            if (sortedScores.size >= 6) {
+                var removed = sortedScores.removeAt(5)
+                Log.i("ORDER", "Removi: " + removed.score + " " + removed.userName)
+
+                //if was added some new:
+
+                Log.i("ORDER", "Comparar: " + removed.score + " " + playScore)
+
+                if (removed.score != playScore) {
+                    Log.i("ORDER", "VOU ALTERAR!")
+                    highScores = sortedScores.toMutableList() as ArrayList<ScoreData>
+
+
+                    db.collection("PointHighScores").get().addOnSuccessListener { documents ->
+                        var i = 0
+                        for (document in documents) {
+                            val insertData = hashMapOf(
+                                "image" to sortedScores[i].imgBaseStr,
+                                "score" to sortedScores[i].score,
+                                "username" to sortedScores[i++].userName,
+                            )
+                            myAdapter.notifyItemInserted(i)
+                            //document.reference.set(insertData)
+                        }
+                    }
+                }
+            }
+            }.addOnFailureListener {
+                Log.i("NEWWAY", "DEAD")
+            }
+
+
+
 
         Log.i("Firebase", "FINAL Count -> " + highScores.size)
 
