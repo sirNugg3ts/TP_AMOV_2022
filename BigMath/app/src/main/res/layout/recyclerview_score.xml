@@ -26,11 +26,11 @@
             android:textColor="#ff5050"
             android:id="@+id/tvname"/>
 
-            <ImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:layout_margin="5dp"
-                android:layout_height="40dp"
+                android:layout_height="60dp"
                 android:layout_width="45dp"
-                android:src="@drawable/leonardo_sousa"
+                android:src="@drawable/profile_picture"
                 android:contentDescription="@string/user_avatar"
                 android:layout_weight="0.05"
                 android:id="@+id/userAvatar"/>
