@@ -16,6 +16,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import pt.isec.a21280348.bigmath.databinding.ActivityScoreboardBinding
+import java.util.Objects
 
 class ScoreboardActivity : AppCompatActivity() {
     data class ScoreData(val userName : String, val score : Long, val bitmap : String)
@@ -34,16 +35,23 @@ class ScoreboardActivity : AppCompatActivity() {
 
 
         val db = Firebase.firestore
+        val db_highscores = db.collection("PointHighScores")
         Log.i("Firebase", "Count -> " + 5)
         var username : String = ""
         var score : Long= 0
         var image : String= ""
 
+        binding.scoreList.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+
+        val myAdapter = RVAdapter(highScores)
+        binding.scoreList.adapter = myAdapter
         for (i in 5 downTo 1 ) {
-            val v = db.collection("PointHighScores").document("PointsScore_"+i.toString())
+            val v = db_highscores.document("PointsScore_"+i.toString())
             v.get(Source.SERVER).addOnSuccessListener {
                 val exists = it.exists()
                 if(!exists)
+                    return@addOnSuccessListener
+                if(it.get("username") == null)
                     return@addOnSuccessListener
                 username = it.getString("username") ?: "user"
                 score = it.getLong("score") ?: 0
@@ -53,17 +61,16 @@ class ScoreboardActivity : AppCompatActivity() {
                 Log.i("Firebase", score.toString())
                 Log.i("Firebase", image)
 
+                highScores.add(ScoreData(username,score,image))
+                myAdapter.notifyItemInserted(5-i)
             }
-            highScores.add(ScoreData(username,score,image))
         }
 
-        Thread.sleep(1400)
         Log.i("Firebase", "FINAL Count -> " + highScores.size)
 
 
-        binding.scoreList.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
 
-        binding.scoreList.adapter = RVAdapter(highScores)
+
     }
 
 

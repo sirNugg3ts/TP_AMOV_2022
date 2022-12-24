@@ -16,8 +16,6 @@
     <string name="profile">Perfil</string>
     <string name="takePhoto">Tirar Foto</string>
     <string name="chooseImage">Selecionar Imagem</string>
-    <string name="firstName">Primeiro Nome</string>
-    <string name="lastName">Apelido</string>
     <string name="time">Tempo</string>
     <string name="zero_value">0</string>
     <string name="multiplyer_title">Modo MultiJogador</string>
@@ -28,4 +26,10 @@
     <string name="ipInformation">IP do servidor:</string>
     <string name="clientConnect">Ligar</string>
     <string name="clientConnectEmulator">Ligar a um Emulador</string>
+    <string name="username">Username</string>
+    <string name="submit">Submeter</string>
+    <string name="user_avatar">Avatar de Utilizador</string>
+    <string name="user_file_key">pt.isec.a21280348.bigmath.USER_PREFS</string>
+    <string name="imageIdent">image_sp</string>
+    <string name="usernameIdent">username_sp</string>
 </resources>

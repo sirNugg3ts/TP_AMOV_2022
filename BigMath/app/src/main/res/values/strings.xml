@@ -8,8 +8,7 @@
     <string name="profile">Profile</string>
     <string name="takePhoto">Take Photo</string>
     <string name="chooseImage">Choose Image</string>
-    <string name="firstName">First Name</string>
-    <string name="lastName">Last Name</string>
+    <string name="username">Username</string>
     <string name="course_name">Mobile Apps</string>
     <string name="PAUSA_STR">PAUSE</string>
     <string name="score">SCORE</string>
@@ -28,4 +27,8 @@
     <string name="clientConnect">Connect</string>
     <string name="clientConnectEmulator">Connect to Emulator</string>
     <string name="user_avatar">User Avatar</string>
+    <string name="submit">Submit</string>
+    <string name="user_file_key">pt.isec.a21280348.bigmath.USER_PREFS</string>
+    <string name="usernameIdent">username_sp</string>
+    <string name="imageIdent">image_sp</string>
 </resources>

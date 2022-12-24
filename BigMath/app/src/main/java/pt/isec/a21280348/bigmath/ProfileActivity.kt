@@ -1,21 +1,32 @@
 package pt.isec.a21280348.bigmath
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.icu.text.CaseMap.Title
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.drawToBitmap
+import com.google.android.material.snackbar.Snackbar
 import pt.isec.a21280348.bigmath.databinding.ActivityProfileBinding
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 class ProfileActivity : AppCompatActivity() {
@@ -62,9 +73,56 @@ class ProfileActivity : AppCompatActivity() {
             setOnClickListener { chooseImage_v3() }
         }
 
+        binding.btnSubmit.setOnClickListener{
+            val username : String = binding.usernameTV.text.toString()
+            if(username.isNullOrEmpty() || username.isBlank()){ //if didnt inserted a username
+                Snackbar.make(binding.root,"Please insert the username!",Snackbar.LENGTH_SHORT).show()
+            }else{//if was inserted a username
+                val sharedPref = this.getSharedPreferences(getString(R.string.user_file_key),Context.MODE_PRIVATE) ?: return@setOnClickListener
+                val drawable = binding.profileImage.drawable as BitmapDrawable
+                val imageBitmap = drawable.bitmap
+                if(imageBitmap != null) {//if have an image save it
+
+                    //transform the image to base64 string
+                    val encondeImage = getEnconded64FromBitmap(imageBitmap)
+
+                    //save in SharedPrefs the base64 image encoded
+                    with(sharedPref.edit()){
+                        putString(getString(R.string.imageIdent),encondeImage)
+                        apply()
+                    }
+
+                }
+                //save in SharedPrefs the username inserted
+                with(sharedPref.edit()){//save username
+                    putString(getString(R.string.usernameIdent),username)
+                    apply()
+                }
+
+                //goes to menu
+                val intent = Intent(this,MainActivity::class.java)
+                startActivity(intent)
+            }
+        }
+
         verifyPermissions_v3()
         updatePreview()
 
+        val sharedPref = this.getSharedPreferences(getString(R.string.user_file_key),Context.MODE_PRIVATE) ?: return
+        if(binding.usernameTV.text.toString().isNullOrEmpty()) {//if the fields are empty fill it
+
+            //read image and username from the SharedPrefs
+            val readedName = sharedPref.getString(getString(R.string.usernameIdent), "")
+            val readedImage= sharedPref.getString(getString(R.string.imageIdent), "")
+
+            //decode the string fonded
+            val decoded64 = Base64.decode(readedImage,Base64.DEFAULT)
+            val bitmap = BitmapFactory.decodeByteArray(decoded64,0,decoded64.size)
+
+            //use the data stored.
+            binding.profileImage.setImageBitmap(bitmap)
+            binding.usernameTV.setText(readedName)
+        }
         /*
         var colorDrawable = ColorDrawable(Color.parseColor("#0F9D58"))
         actionBar?.setBackgroundDrawable(colorDrawable)
@@ -93,7 +151,7 @@ class ProfileActivity : AppCompatActivity() {
                     imagePath = cursor.getString(0)
                 updatePreview()
         }*/
-        imagePath = uri?.let { createFileFromUri(this, it) }
+        imagePath = uri?.let {createFileFromUri(this, it)}
         updatePreview()
     }
 
@@ -127,6 +185,14 @@ class ProfileActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         permissionsGranted = isGranted
+    }
+
+    fun getEnconded64FromBitmap(bitmap: Bitmap): String{
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG,70,stream)
+        val byteFormat = stream.toByteArray()
+
+        return Base64.encodeToString(byteFormat,Base64.NO_WRAP)
     }
 
 
