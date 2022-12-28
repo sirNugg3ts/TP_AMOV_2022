@@ -65,6 +65,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        binding.btnLeaderboard.setOnClickListener{
+            val intent = Intent(this,ScoreboardActivity::class.java)
+            startActivity(intent)
+        }
+
         binding.btnExit.setOnClickListener{
             finish()
         }

@@ -262,7 +262,7 @@ class GameTableActivity : AppCompatActivity() {
     }
 
     companion object{
-        val GAMETIME : Int = 60
+        val GAMETIME : Int = 4
     }
 
 }

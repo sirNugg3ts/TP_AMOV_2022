@@ -1,6 +1,7 @@
 package pt.isec.a21280348.bigmath
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -28,7 +29,8 @@ class ScoreboardActivity : AppCompatActivity() {
     lateinit var binding : ActivityScoreboardBinding
 
     var highScores = arrayListOf<ScoreData>()
-
+    var myAdapter = RVAdapter(highScores)
+    lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +42,7 @@ class ScoreboardActivity : AppCompatActivity() {
         //read user data
         val playName = sharedPref.getString(getString(R.string.usernameIdent), "")
         val playImage= sharedPref.getString(getString(R.string.imageIdent), "")
-        val playScore = intent.getIntExtra("score",5).toLong()
+        val playScore = intent.getIntExtra("score",-1).toLong()
         //Log.i("SCORE",playScore.toString())
 
 
@@ -51,11 +53,8 @@ class ScoreboardActivity : AppCompatActivity() {
         var username : String = ""
         var score : Long= 0
         var image : String= ""
-
-        binding.scoreList.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-
-        val myAdapter = RVAdapter(highScores)
-        binding.scoreList.adapter = myAdapter
+        recyclerView = binding.scoreList
+        recyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
         /*for (i in 1..5 ) {
             val v = db_highscores.document("PointsScore_"+i.toString())
             Log.i("Leaderboard", ("Lendo : PointsScore_"+i.toString()))
@@ -78,33 +77,35 @@ class ScoreboardActivity : AppCompatActivity() {
                 Log.i("Firebase", username)
                 Log.i("Firebase", score.toString())
                 Log.i("Firebase", image)
-
                 Log.i("Leaderboard",score.toString())
                 highScores.add(ScoreData(username,score,image))
                 myAdapter.notifyItemInserted(i-1)
             }
         }*/
-        Log.i("NEWWAY", "start of")
-        db.collection("PointHighScores").get().addOnSuccessListener { documents ->
-            var i = 0
-            for (document in documents) {
-
-                if (document.get("username") == null) {
-                    if (insertedUser)
-                        return@addOnSuccessListener
-                    else {
-                        val insertData = hashMapOf(
-                            "image" to playImage,
-                            "score" to playScore,
-                            "username" to playName,
-                        )
-                        insertedUser = true
-                        document.reference.set(insertData)
-                        highScores.add(ScoreData(playName!!, playScore, playImage!!))
-                        myAdapter.notifyItemInserted(i++)
-                    }
-                } else {
-
+        if(playScore.toInt() != -1) {
+            Log.i("NEWWAY", "start of")
+            db.collection("PointHighScores").get().addOnSuccessListener { documents ->
+                var i = 0
+                for (document in documents) {
+                    Log.i("ZZZ", document.get("score").toString())
+                    if (document.get("score").toString() == "-1") {
+                        Log.i("INSERTNEW", "Entrei aqui")
+                        if (insertedUser)
+                            return@addOnSuccessListener
+                        else {
+                            val insertData = hashMapOf(
+                                "image" to playImage,
+                                "score" to playScore,
+                                "username" to playName,
+                            )
+                            insertedUser = true
+                            Log.i("INSERT NEW", insertData.toString())
+                            document.reference.set(insertData)
+                            //highScores.add(ScoreData(playName!!, playScore, playImage!!))
+                            //myAdapter.notifyItemInserted(i++)
+                        }
+                    } else {
+/*
                     username = document.getString("username") ?: playName!!
                     score = document.getLong("score") ?: playScore
                     image = document.getString("image") ?: playImage!!
@@ -114,54 +115,65 @@ class ScoreboardActivity : AppCompatActivity() {
                     Log.i("Firebase", image)
 
                     Log.i("Leaderboard", score.toString())
-                    highScores.add(ScoreData(username, score, image))
-                    myAdapter.notifyItemInserted(i++)
+                    //highScores.add(ScoreData(username, score, image))
+                    //myAdapter.notifyItemInserted(i++)*/
+                    }
+
                 }
 
-            }
-            if (!insertedUser)
-                highScores.add(ScoreData(playName!!, playScore, playImage!!))
-
-            val sortedScores =
-                highScores.sortedWith(compareBy({ it.score })).reversed() as ArrayList<ScoreData>
-            Log.i("SORTED", "ISTO:  " + highScores.size)
-            for (sorted in sortedScores) {
-                Log.i("SORTED", sorted.score.toString())
-            }
-            if (sortedScores.size >= 6) {
-                var removed = sortedScores.removeAt(5)
-                Log.i("ORDER", "Removi: " + removed.score + " " + removed.userName)
-
-                //if was added some new:
-
-                Log.i("ORDER", "Comparar: " + removed.score + " " + playScore)
-
-                if (removed.score != playScore) {
-                    Log.i("ORDER", "VOU ALTERAR!")
-                    highScores = sortedScores.toMutableList() as ArrayList<ScoreData>
+                var tempScores = highScores.toMutableList()
+                if (!insertedUser)
+                    tempScores.add(ScoreData(playName!!, playScore, playImage!!))
 
 
-                    db.collection("PointHighScores").get().addOnSuccessListener { documents ->
-                        var i = 0
-                        for (document in documents) {
-                            val insertData = hashMapOf(
-                                "image" to sortedScores[i].imgBaseStr,
-                                "score" to sortedScores[i].score,
-                                "username" to sortedScores[i++].userName,
-                            )
-                            myAdapter.notifyItemInserted(i)
-                            //document.reference.set(insertData)
+                val sortedScores =
+                    tempScores.sortedWith(compareBy({ it.score }))
+                        .reversed() as ArrayList<ScoreData>
+                Log.i("SORTED", "ISTO:  " + highScores.size)
+                for (sorted in sortedScores) {
+                    Log.i("SORTED", sorted.score.toString())
+                }
+                if (sortedScores.size >= 6) {
+                    var removed = sortedScores.removeAt(5)
+                    Log.i("ORDER", "Removi: " + removed.score + " " + removed.userName)
+
+                    //if was added some new:
+
+                    Log.i("ORDER", "Comparar: " + removed.score + " " + playScore)
+
+                    if (true) {
+                        Log.i("ORDER", "VOU ALTERAR!")
+                        //highScores = sortedScores.toMutableList() as ArrayList<ScoreData>
+
+
+                        db.collection("PointHighScores").get().addOnSuccessListener { documents ->
+                            var i = 0
+                            for (document in documents) {
+                                val insertData = hashMapOf(
+                                    "image" to sortedScores[i].imgBaseStr,
+                                    "score" to sortedScores[i].score,
+                                    "username" to sortedScores[i].userName,
+                                )
+                                //myAdapter.notifyItemInserted(i)
+                                Log.i(
+                                    "DBSORTED",
+                                    i.toString() + " -> " + insertData.get("score").toString()
+                                )
+                                i++
+                                document.reference.set(insertData)
+                            }
                         }
                     }
                 }
-            }
             }.addOnFailureListener {
                 Log.i("NEWWAY", "DEAD")
             }
-
-
-
-
+            binding.tvLocalScore.text = "MY SCORE: $playScore"
+        }else{
+            binding.tvLocalScore.text = "TOP SCORES"
+        }
+        recyclerView.adapter = myAdapter
+        startObservers()
         Log.i("Firebase", "FINAL Count -> " + highScores.size)
 
 
@@ -177,13 +189,19 @@ class ScoreboardActivity : AppCompatActivity() {
             var avatarIMG : ImageView = view.findViewById(R.id.userAvatar)
 
             fun update(newData : ScoreData){
-                usernameTV.text = newData.userName;
-                scoreTV.text = "Score: " + newData.score;
-                val decoded64 = Base64.decode(newData.imgBaseStr, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(decoded64,0,decoded64.size)
-                avatarIMG.setImageBitmap(bitmap)
-
-                //avatarIMG.setImageResource( ... )
+                if(newData.score.toInt() == -1){
+                    usernameTV.text = "";
+                    scoreTV.text = "";
+                    val decoded64 = Base64.decode(newData.imgBaseStr, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(decoded64, 0, decoded64.size)
+                    avatarIMG.setImageBitmap(bitmap)
+                }else {
+                    usernameTV.text = newData.userName;
+                    scoreTV.text = "Score: " + newData.score;
+                    val decoded64 = Base64.decode(newData.imgBaseStr, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(decoded64, 0, decoded64.size)
+                    avatarIMG.setImageBitmap(bitmap)
+                }
             }
         }
 
@@ -207,14 +225,54 @@ class ScoreboardActivity : AppCompatActivity() {
 
 
 
+    fun startObservers(){
+
+
+
+        for(i in 0..4) {
+            highScores.add(i, ScoreData("",-1,""))
+            startObserver(i)
+        }
+    }
+
+    fun fillFS(index: Int) {
+        val templateData = hashMapOf(
+            "username" to "",
+            "score" to -1,
+            "image" to "",
+        )
+
+        val db = Firebase.firestore
+        val doc = "PointsScore_$index"
+        Log.i("Filling",doc)
+        db.collection("PointHighScores").document(doc).set(templateData)
+    }
 
 
 
 
-
-
-
-
+    fun startObserver(index : Int) {
+       Log.i("aiai","PointsScore_" + index.toString())
+       val db = Firebase.firestore
+       db.collection("PointHighScores").document("PointsScore_" + index.toString()).addSnapshotListener{
+           doc, e->
+            if(e !=null)
+                return@addSnapshotListener
+           if(doc != null && doc.exists()){
+               var username = doc.getString("username")
+               var score = doc.getLong("score")
+               var image = doc.getString("image")
+               Log.i("TESTE",highScores.size.toString())
+                if(username == null || score==null || image == null)
+                    fillFS(index)
+               else
+                  highScores[index] = ScoreData(username,score,image)
+               Log.i("Listener","Mudei " + highScores.get(index).userName + " " + highScores.get(index).score)
+               Log.i("Listener","Mudei " + myAdapter.itemCount)
+               myAdapter.notifyItemChanged(index)
+           }
+       }
+   }
 
 
 

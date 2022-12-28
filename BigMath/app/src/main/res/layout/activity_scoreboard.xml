@@ -20,6 +20,45 @@
         app:layout_constraintTop_toTopOf="parent"
         android:background="#ff5757"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/scoreTVLabel"
+        android:id="@+id/linearButtons"
+        android:layout_marginHorizontal="40dp">
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="SCORE"
+            android:layout_marginRight="100dp"
+            android:background="@drawable/round_btn" />
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="TIME"
+            android:background="@drawable/round_btn" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="26sp"
+        android:layout_weight="1"
+        android:textColor="#ff5050"
+        android:id="@+id/tvLocalScore"
+        app:layout_constraintTop_toBottomOf="@id/linearButtons"
+        app:layout_constraintBottom_toTopOf="@id/tvLocalScore"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:textAlignment="center"
+        android:background="#f4f4f4"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_marginTop="10dp"
         android:padding="4dp"
@@ -29,7 +68,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scoreTVLabel">
+        app:layout_constraintTop_toBottomOf="@id/tvLocalScore">
 
     </androidx.recyclerview.widget.RecyclerView>
 
