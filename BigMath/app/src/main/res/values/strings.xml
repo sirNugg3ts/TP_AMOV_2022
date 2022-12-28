@@ -32,4 +32,7 @@
     <string name="invitePlayers">Invite Players</string>
     <string name="startGameMultiplayer">Start Game</string>
     <string name="error_phoneNumber">Invalid phone number!</string>
+    <string name="players">Nrº of Players: </string>
+    <string name="warningMultiplayer">At least one player must connect for this type of game to start!</string>
+
 </resources>

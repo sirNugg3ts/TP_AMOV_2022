@@ -15,15 +15,24 @@ import android.text.InputType
 import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import pt.isec.a21280348.bigmath.databinding.ActivityLobbyBinding
 import pt.isec.a21280348.bigmath.multiplayer.ConnectionState
+import pt.isec.a21280348.bigmath.multiplayer.GameViewModel
+import kotlin.concurrent.thread
 
 class LobbyActivity : AppCompatActivity() {
 
@@ -47,8 +56,20 @@ class LobbyActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityLobbyBinding
-    private val model : MyViewModel by viewModels()
+    private lateinit var menuItem : MenuItem
+
+    private val model : GameViewModel by viewModels()
     private var strIP : String? = null
+
+    private var _nrPlayersLive : MutableLiveData<ArrayList<MyViewModel>>? = null
+    private var nrPlayersLive : LiveData<ArrayList<MyViewModel>>?
+        get() = _nrPlayersLive
+        set(value) {}
+/*
+
+    private var nrPlayersLive : LiveData<Int>
+        get() = _nrPlayersLive
+        set(value)  {}*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,10 +83,14 @@ class LobbyActivity : AppCompatActivity() {
             }
         }
 
-/*
-        binding.btnInvitePlayers.setOnClickListener {
-            logi("clicked invite players button")
-        }*/
+        _nrPlayersLive = MutableLiveData<ArrayList<MyViewModel>>().apply { value =
+            model._playersGameData.value
+        }
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setTitle("Game lobby")
+        model.startLobby()
+
 
         binding.btnInvitePlayers.setOnClickListener {
 
@@ -102,7 +127,8 @@ class LobbyActivity : AppCompatActivity() {
                 .setTitle("Invite a client")
                 .setMessage("Insert a phone number to invite to play! ")
                 .setPositiveButton("Send") { _: DialogInterface, _: Int ->
-                    val strNumber = edtBox.text.toString()
+                    //val strNumber = edtBox.text.toString()
+                    val strNumber = "+351968338428"
                     if(strNumber.isEmpty() || !Patterns.PHONE.matcher(strNumber).matches()){
                         Toast.makeText(this@LobbyActivity, "Invalid phone number!", Toast.LENGTH_LONG)
                             .show()
@@ -118,14 +144,18 @@ class LobbyActivity : AppCompatActivity() {
                             intent.putExtra("Ola", "Here goes your message...")
                             startActivity(intent)*/
 
-                            var smsManager:SmsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                this.getSystemService(SmsManager::class.java)
+                            var smsManager:SmsManager
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                smsManager = this.getSystemService(SmsManager::class.java)
                             } else {
-                                TODO("VERSION.SDK_INT < M")
+                                smsManager = SmsManager.getDefault()
+                                Toast.makeText(applicationContext, "Message Sent", Toast.LENGTH_LONG)
+                                    .show()
                             }
 
                             smsManager.sendTextMessage(
-                                strNumber,
+                                "+351968338428",
                                 null,
                                 "Join the Big Math multiplayer game: using this IP adress:  $strIP",
                                 null,
@@ -160,6 +190,38 @@ class LobbyActivity : AppCompatActivity() {
             dlg.show()
         }
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                model.stopGame()
+            }
+        })
+
+        if(model.connectionState.value != ConnectionState.CONNECTION_ESTABLISHED) {
+            when(intent.getIntExtra("mode", SERVER_MODE)) {
+                SERVER_MODE -> startAsServer()
+                CLIENT_MODE -> startAsClient()
+            }
+        }
+
+        binding.btnStartGame.setOnClickListener {
+            if(_nrPlayersLive?.value?.size == 0){
+                Toast.makeText(this,R.string.warningMultiplayer,Toast.LENGTH_LONG)
+                    .show()
+            } else {
+
+            }
+        }
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater : MenuInflater = menuInflater
+        inflater.inflate(R.menu.lobby_menu,menu)
+        menuItem = menu[0]
+        menuItem.title = "Players: " + _nrPlayersLive?.value?.size.toString()
+
+        registNewPlayers()
+        return true
     }
 
     private fun sendSMS() {
@@ -167,6 +229,19 @@ class LobbyActivity : AppCompatActivity() {
         val intent = Intent(Intent.ACTION_SENDTO, uri)
         intent.putExtra(("Join the Big Math multiplayer game: using this IP adress: $strIP"), "Here goes your message...")
         startActivity(intent)
+    }
+
+    private fun registNewPlayers() {
+
+        thread {
+                while(true){
+
+                    runOnUiThread {
+                        menuItem.title = "Players: " + _nrPlayersLive?.value?.size.toString()
+                    }
+                    Thread.sleep(5000)
+                }
+        }
     }
 
     private fun logi(message: String){
@@ -188,7 +263,7 @@ class LobbyActivity : AppCompatActivity() {
         binding.txtMessageLobbyIp.text = String.format(getString(R.string.msg_ip_address),strIpAdress)
         binding.btnInvitePlayers.visibility = View.VISIBLE
         binding.btnStartGame.visibility = View.VISIBLE
-/*
+        /*
         binding.btnInvitePlayers.setOnClickListener {
 
             val edtBox = EditText(this).apply {
@@ -244,7 +319,6 @@ class LobbyActivity : AppCompatActivity() {
 
             dlg.show()
         }*/
-
     }
 
     private fun startAsClient() {

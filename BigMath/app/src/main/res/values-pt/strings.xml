@@ -33,4 +33,6 @@
     <string name="invitePlayers">Convidar Jogadores</string>
     <string name="startGameMultiplayer">Iniciar o Jogo</string>
     <string name="error_phoneNumber">Número de telefone inválido!</string>
+    <string name="players">Nrº de Jogadores: </string>
+    <string name="warningMultiplayer">No mínimo terá de se ligar um jogador para que este tipo de jogo possa ser iniciado!</string>
 </resources>

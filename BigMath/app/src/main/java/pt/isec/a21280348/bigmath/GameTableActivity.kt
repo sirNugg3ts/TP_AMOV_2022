@@ -40,16 +40,21 @@ class MyViewModel : ViewModel(){
 
     var table :  MutableList<Any>  = mutableListOf(20)
     var _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
+    var levelLive : LiveData<Int>
+        get() = _levelLive
+        set(value) {}
+
     var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GameTableActivity.GAMETIME }
     var score : Int = 0
     var phase : Int = 1
-    lateinit var levelLive : LiveData<Int>
+
     lateinit var timeLeftLive : LiveData<Int>
 
-    private val _connectionState = MutableLiveData(ConnectionState.SETTING_PARAMETERS)
+
+    private val _connectionState = MutableLiveData(ConnectionState.AWAITING_PLAYERS)
     val connectionState: LiveData<ConnectionState>
         get() = _connectionState;
-
+/*
     private var socket: Socket? = null
     private val socketI : InputStream?
         get() = socket?.getInputStream()
@@ -139,7 +144,7 @@ class MyViewModel : ViewModel(){
             threadComm?.interrupt()
             threadComm = null
         } catch (_: Exception) { }
-    }
+    }*/
 }
 
 class GameTableActivity : AppCompatActivity() {
@@ -256,7 +261,6 @@ class GameTableActivity : AppCompatActivity() {
         model.score = gameTable.getFinalScore()
         model.phase = gameTable.getPhase()
         threadStop = true
-
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
