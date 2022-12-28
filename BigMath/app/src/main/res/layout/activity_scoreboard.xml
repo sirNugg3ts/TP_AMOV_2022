@@ -35,13 +35,15 @@
             android:layout_weight="0.5"
             android:text="SCORE"
             android:layout_marginRight="100dp"
-            android:background="@drawable/round_btn" />
+            android:background="@drawable/round_btn"
+            android:id="@+id/btnScore"/>
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
             android:text="TIME"
-            android:background="@drawable/round_btn" />
+            android:background="@drawable/round_btn"
+            android:id="@+id/btnTime"/>
     </LinearLayout>
 
     <TextView

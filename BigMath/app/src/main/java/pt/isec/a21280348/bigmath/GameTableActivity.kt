@@ -29,6 +29,7 @@ class MyViewModel : ViewModel(){
     var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GameTableActivity.GAMETIME }
     var score : Int = 0
     var phase : Int = 1
+    var totalGameTime : Int = 0
     lateinit var levelLive : LiveData<Int>
     lateinit var timeLeftLive : LiveData<Int>
 }
@@ -40,6 +41,7 @@ class GameTableActivity : AppCompatActivity() {
     private var _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
     private var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GAMETIME }
     private lateinit var menuItem : MenuItem
+    private var totalGameTime = 0
     private lateinit var timeThread : Thread
     var threadStop : Boolean = false
 
@@ -101,6 +103,7 @@ class GameTableActivity : AppCompatActivity() {
                 }
                 else if (!paused) {
                     _timeLeftLive.postValue( (_timeLeftLive.value!! - 1))
+                    totalGameTime++
                 }
                 Thread.sleep(1000)
                 if(threadStop)
@@ -109,6 +112,7 @@ class GameTableActivity : AppCompatActivity() {
             if(!threadStop) {
                 val intent = Intent(this, ScoreboardActivity::class.java)
                 intent.putExtra("score", gameTable.getFinalScore())
+                intent.putExtra("totalTime", totalGameTime)
                 startActivity(intent)
             }
         }
@@ -146,6 +150,7 @@ class GameTableActivity : AppCompatActivity() {
         model.levelLive = levelLive
         model.score = gameTable.getFinalScore()
         model.phase = gameTable.getPhase()
+        model.totalGameTime = totalGameTime
         threadStop = true
 
     }
@@ -159,20 +164,19 @@ class GameTableActivity : AppCompatActivity() {
         _timeLeftLive = model._timeLeftLive
         timeLeftLive = model.timeLeftLive
         levelLive = model.levelLive
+        totalGameTime = model.totalGameTime
         info = GameInfo(model.score,false)
         gameTable.restoreState(false,model.table,info,model.phase,_levelLive,_timeLeftLive)
 
         firstObserved = true
         registLevelObserver()
-        timeLeftLive.observe(this){
-            Log.i("TIME",_timeLeftLive.value.toString())
-            binding.timeCounter.text = _timeLeftLive.value.toString()
-        }
+        registTimeObserver()
     }
 
     private fun registTimeObserver(){
         timeLeftLive.observe(this){
             Log.i("TIME",_timeLeftLive.value.toString())
+            Log.i("TOTALTIME",totalGameTime.toString() )
             binding.timeCounter.text = _timeLeftLive.value.toString()
         }
     }
@@ -262,7 +266,7 @@ class GameTableActivity : AppCompatActivity() {
     }
 
     companion object{
-        val GAMETIME : Int = 4
+        val GAMETIME : Int = 7
     }
 
 }

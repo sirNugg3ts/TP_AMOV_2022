@@ -1,7 +1,6 @@
 package pt.isec.a21280348.bigmath
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -15,13 +14,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.AggregateSource
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.tasks.await
 import pt.isec.a21280348.bigmath.databinding.ActivityScoreboardBinding
-import java.util.Objects
 
 class ScoreboardActivity : AppCompatActivity() {
     data class ScoreData(val userName : String, val score : Long, val imgBaseStr : String)
@@ -29,8 +26,11 @@ class ScoreboardActivity : AppCompatActivity() {
     lateinit var binding : ActivityScoreboardBinding
 
     var highScores = arrayListOf<ScoreData>()
+
     var myAdapter = RVAdapter(highScores)
     lateinit var recyclerView: RecyclerView
+
+    var listeners = arrayListOf<ListenerRegistration>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +43,8 @@ class ScoreboardActivity : AppCompatActivity() {
         val playName = sharedPref.getString(getString(R.string.usernameIdent), "")
         val playImage= sharedPref.getString(getString(R.string.imageIdent), "")
         val playScore = intent.getIntExtra("score",-1).toLong()
-        //Log.i("SCORE",playScore.toString())
+        val playTotalTime = intent.getIntExtra("totalTime",-1).toLong()
+        Log.i("TotalTimeScore",playTotalTime.toString())
 
 
 
@@ -55,33 +56,7 @@ class ScoreboardActivity : AppCompatActivity() {
         var image : String= ""
         recyclerView = binding.scoreList
         recyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-        /*for (i in 1..5 ) {
-            val v = db_highscores.document("PointsScore_"+i.toString())
-            Log.i("Leaderboard", ("Lendo : PointsScore_"+i.toString()))
-            Thread.sleep(300)
-            v.get(Source.SERVER).addOnSuccessListener {
-                val exists = it.exists()
-                if(!exists)
-                    return@addOnSuccessListener
-                if(it.get("username") == null){
-                    if(insertedUser)
-                        return@addOnSuccessListener
-                    else{
-                        insertedUser = true
-                    }
-                }
-                username = it.getString("username") ?: playName!!
-                score = it.getLong("score") ?: playScore
-                image = it.getString("image") ?: playImage!!
-                //v.update("username",newStr)
-                Log.i("Firebase", username)
-                Log.i("Firebase", score.toString())
-                Log.i("Firebase", image)
-                Log.i("Leaderboard",score.toString())
-                highScores.add(ScoreData(username,score,image))
-                myAdapter.notifyItemInserted(i-1)
-            }
-        }*/
+
         if(playScore.toInt() != -1) {
             Log.i("NEWWAY", "start of")
             db.collection("PointHighScores").get().addOnSuccessListener { documents ->
@@ -101,26 +76,10 @@ class ScoreboardActivity : AppCompatActivity() {
                             insertedUser = true
                             Log.i("INSERT NEW", insertData.toString())
                             document.reference.set(insertData)
-                            //highScores.add(ScoreData(playName!!, playScore, playImage!!))
-                            //myAdapter.notifyItemInserted(i++)
+
                         }
-                    } else {
-/*
-                    username = document.getString("username") ?: playName!!
-                    score = document.getLong("score") ?: playScore
-                    image = document.getString("image") ?: playImage!!
-                    //v.update("username",newStr)
-                    Log.i("Firebase", username)
-                    Log.i("Firebase", score.toString())
-                    Log.i("Firebase", image)
-
-                    Log.i("Leaderboard", score.toString())
-                    //highScores.add(ScoreData(username, score, image))
-                    //myAdapter.notifyItemInserted(i++)*/
                     }
-
                 }
-
                 var tempScores = highScores.toMutableList()
                 if (!insertedUser)
                     tempScores.add(ScoreData(playName!!, playScore, playImage!!))
@@ -154,7 +113,6 @@ class ScoreboardActivity : AppCompatActivity() {
                                     "score" to sortedScores[i].score,
                                     "username" to sortedScores[i].userName,
                                 )
-                                //myAdapter.notifyItemInserted(i)
                                 Log.i(
                                     "DBSORTED",
                                     i.toString() + " -> " + insertData.get("score").toString()
@@ -173,11 +131,31 @@ class ScoreboardActivity : AppCompatActivity() {
             binding.tvLocalScore.text = "TOP SCORES"
         }
         recyclerView.adapter = myAdapter
-        startObservers()
+        //startObservers()
         Log.i("Firebase", "FINAL Count -> " + highScores.size)
 
+        binding.btnTime.setOnClickListener{
+            endObservers()
+            highScores.clear()
+            myAdapter.notifyItemRangeRemoved(0,5)
+            startObserversTime()
+        }
 
+        binding.btnScore.setOnClickListener{
+            endObservers()
+            startObserversScore()
+        }
 
+    }
+
+    override fun onStop() {
+        endObservers()
+        super.onStop()
+    }
+
+    override fun onStart() {
+        startObserversScore()
+        super.onStart()
 
     }
 
@@ -225,17 +203,28 @@ class ScoreboardActivity : AppCompatActivity() {
 
 
 
-    fun startObservers(){
-
-
-
+    fun startObserversScore(){
         for(i in 0..4) {
             highScores.add(i, ScoreData("",-1,""))
-            startObserver(i)
+            startObserverSc(i)
         }
     }
 
-    fun fillFS(index: Int) {
+    fun startObserversTime(){
+        for(i in 0..4) {
+            highScores.add(i, ScoreData("",-1,""))
+            startObserverTm(i)
+        }
+    }
+
+    fun endObservers(){
+        for(i in 0..4) {
+            listeners[i].remove()
+        }
+        listeners.clear()
+    }
+
+    fun fillFSScore(index: Int) {
         val templateData = hashMapOf(
             "username" to "",
             "score" to -1,
@@ -248,13 +237,26 @@ class ScoreboardActivity : AppCompatActivity() {
         db.collection("PointHighScores").document(doc).set(templateData)
     }
 
+    fun fillFSTime(index: Int) {
+        val templateData = hashMapOf(
+            "username" to "",
+            "time" to -1,
+            "image" to "",
+        )
+
+        val db = Firebase.firestore
+        val doc = "TimeScore_$index"
+        Log.i("Filling",doc)
+        db.collection("PointHighScores").document(doc).set(templateData)
+    }
 
 
 
-    fun startObserver(index : Int) {
+
+    fun startObserverSc(index : Int) {
        Log.i("aiai","PointsScore_" + index.toString())
        val db = Firebase.firestore
-       db.collection("PointHighScores").document("PointsScore_" + index.toString()).addSnapshotListener{
+        listeners.add(db.collection("PointHighScores").document("PointsScore_" + index.toString()).addSnapshotListener{
            doc, e->
             if(e !=null)
                 return@addSnapshotListener
@@ -264,15 +266,39 @@ class ScoreboardActivity : AppCompatActivity() {
                var image = doc.getString("image")
                Log.i("TESTE",highScores.size.toString())
                 if(username == null || score==null || image == null)
-                    fillFS(index)
+                    fillFSScore(index)
                else
                   highScores[index] = ScoreData(username,score,image)
                Log.i("Listener","Mudei " + highScores.get(index).userName + " " + highScores.get(index).score)
                Log.i("Listener","Mudei " + myAdapter.itemCount)
                myAdapter.notifyItemChanged(index)
            }
-       }
+       })
    }
+
+    fun startObserverTm(index : Int) {
+        Log.i("aiai","TimeScore_" + index.toString())
+        val db = Firebase.firestore
+        listeners.add(db.collection("PointHighScores").document("TimeScore_" + index.toString()).addSnapshotListener{
+                doc, e->
+            if(e !=null)
+                return@addSnapshotListener
+            if(doc != null && doc.exists()){
+                var username = doc.getString("username")
+                var time = doc.getLong("time")
+                var image = doc.getString("image")
+                Log.i("TESTE",highScores.size.toString())
+                if(username == null || time==null || image == null)
+                    fillFSTime(index)
+                else
+                    highScores[index] = ScoreData(username,time,image)
+                Log.i("Listener","Mudei " + highScores.get(index).userName + " " + highScores.get(index).score)
+                Log.i("Listener","Mudei " + myAdapter.itemCount)
+                myAdapter.notifyItemChanged(index)
+            }
+        })
+    }
+
 
 
 
