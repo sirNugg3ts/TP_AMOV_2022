@@ -3,6 +3,7 @@ package pt.isec.a21280348.bigmath
 import android.content.ClipData.Item
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
@@ -13,7 +14,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.window.OnBackInvokedDispatcher
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.get
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.generateTable
 import kotlin.concurrent.thread
+import androidx.activity.addCallback
 
 
 class MyViewModel : ViewModel(){
@@ -73,7 +78,7 @@ class GameTableActivity : AppCompatActivity() {
         gameTable.setLiveData(_levelLive,_timeLeftLive)
         binding.gameTableId.addView(gameTable)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        //supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Math Game"
 
 
@@ -111,8 +116,8 @@ class GameTableActivity : AppCompatActivity() {
             }
             if(!threadStop) {
                 val intent = Intent(this, ScoreboardActivity::class.java)
-                intent.putExtra("score", gameTable.getFinalScore())
-                intent.putExtra("totalTime", totalGameTime)
+                intent.putExtra(scoreTAG, gameTable.getFinalScore())
+                intent.putExtra(totalTimeTAG, totalGameTime)
                 startActivity(intent)
             }
         }
@@ -120,7 +125,25 @@ class GameTableActivity : AppCompatActivity() {
 
         timeThread.start()
 
+
+        onBackPressedDispatcher.addCallback(this ) {
+            val builder = AlertDialog.Builder(this@GameTableActivity)
+            builder.setTitle(getString(R.string.leave)).setMessage(getString(R.string.quitQuestion))
+
+            builder.setPositiveButton(android.R.string.ok){ dialog,which ->
+                finish()
+                threadStop = true
+            }
+            builder.setNegativeButton(android.R.string.cancel){ dialog,which ->
+            }
+            builder.show()
+        }
     }
+
+
+
+
+
 
     override fun onStart() {
         super.onStart()
@@ -131,12 +154,13 @@ class GameTableActivity : AppCompatActivity() {
         registTimeObserver()
     }
 
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater : MenuInflater = menuInflater
         Log.i("MENU","MENU CRIADO")
         inflater.inflate(R.menu.table_menu,menu)
         menuItem = menu[0]
-        menuItem.title = "Level: " + _levelLive.value.toString()
+        menuItem.title = getString(R.string.level)+ " " + _levelLive.value.toString()
         return true
     }
 
@@ -176,7 +200,7 @@ class GameTableActivity : AppCompatActivity() {
     private fun registTimeObserver(){
         timeLeftLive.observe(this){
             Log.i("TIME",_timeLeftLive.value.toString())
-            Log.i("TOTALTIME",totalGameTime.toString() )
+            Log.i(totalTimeTAG,totalGameTime.toString() )
             binding.timeCounter.text = _timeLeftLive.value.toString()
         }
     }
@@ -188,13 +212,17 @@ class GameTableActivity : AppCompatActivity() {
             }
             else {
                 tableReset()
-                binding.levelView.text = "Next level in " + 5 + " seconds!"
+                getString(R.string.user_file_key)
+                binding.levelView.text = getString(R.string.nextLevel) + " " + 5 + " " +  getString(R.string.seconds) + "!"
                 binding.timeCounter.text = ""
-                _timeLeftLive.value = 60 - (5 * (_levelLive.value!!-1))
+                if(60 - (5 * (_levelLive.value!!-1)) > 20)
+                    _timeLeftLive.value = 60 - (5 * (_levelLive.value!!-1))
+                else
+                    _timeLeftLive.value = 20
                 thread {
                     var pausetime = 5
                     runOnUiThread {
-                        menuItem.title = "Level: " + _levelLive.value.toString()
+                        menuItem.title = getString(R.string.level)+ " "+ _levelLive.value.toString()
                     }
                     if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                         runOnUiThread {
@@ -209,7 +237,7 @@ class GameTableActivity : AppCompatActivity() {
                         if(!paused){
                             pausetime -=1
                             runOnUiThread {
-                                binding.levelView.text = "Next level in " + pausetime + " seconds!"
+                                binding.levelView.text = getString(R.string.nextLevel) + " "+ pausetime+ " " + getString(R.string.seconds) + "!"
                             }
                         }
                         Thread.sleep(1000)
@@ -266,7 +294,9 @@ class GameTableActivity : AppCompatActivity() {
     }
 
     companion object{
-        val GAMETIME : Int = 7
+        val GAMETIME : Int = 60
+        val scoreTAG = "score"
+        val totalTimeTAG = "totalTime"
     }
 
 }

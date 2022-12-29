@@ -34,6 +34,7 @@ class ScoreboardActivity : AppCompatActivity() {
 
     var listeners = arrayListOf<ListenerRegistration>()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityScoreboardBinding.inflate(layoutInflater)
@@ -187,8 +188,7 @@ class ScoreboardActivity : AppCompatActivity() {
                 Log.i("NEWWAY", "DEAD")
             }
 
-
-            binding.tvLocalScore.text = "MY SCORE: $playScore"
+            binding.tvLocalScore.text = getString(R.string.myScore)+ " "+playScore
         } else {
             binding.tvLocalScore.text = "TOP SCORES"
         }
@@ -197,27 +197,31 @@ class ScoreboardActivity : AppCompatActivity() {
         Log.i("Firebase", "FINAL Count -> " + highScores.size)
 
         binding.btnTime.setOnClickListener {
+            myAdapter.inScoreChange(false)
             endObservers()
             highScores.clear()
             myAdapter.notifyItemRangeRemoved(0, 5)
             startObserversTime()
             myAdapter.notifyItemRangeInserted(0, 5)
             if(playScore.toInt() != -1)
-                binding.tvLocalScore.text = "MY TIME: $playTotalTime"
+                binding.tvLocalScore.text = getString(R.string.myTime)+ " "+playTotalTime
             else
-                binding.tvLocalScore.text = "TOP TIME"
+                binding.tvLocalScore.text = getString(R.string.topTime)
+
         }
 
         binding.btnScore.setOnClickListener {
+            myAdapter.inScoreChange(true)
             endObservers()
             highScores.clear()
             myAdapter.notifyItemRangeRemoved(0, 5)
             startObserversScore()
+            myAdapter.inScoreChange(true)
             myAdapter.notifyItemRangeInserted(0, 5)
             if(playScore.toInt() != -1)
-                binding.tvLocalScore.text = "MY SCORE: $playScore"
+                binding.tvLocalScore.text = getString(R.string.myScore)+ " "+playScore
             else
-                binding.tvLocalScore.text = "TOP SCORES"
+                binding.tvLocalScore.text = getString(R.string.topScore)
         }
 
     }
@@ -235,10 +239,12 @@ class ScoreboardActivity : AppCompatActivity() {
 
 
     class RVAdapter(val data: ArrayList<ScoreData>) : RecyclerView.Adapter<RVAdapter.ViewHolder>() {
+        var inScoreView = true
         class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
             var usernameTV: TextView = view.findViewById(R.id.tvname)
             var scoreTV: TextView = view.findViewById(R.id.tvscore)
             var avatarIMG: ImageView = view.findViewById(R.id.userAvatar)
+            var inScoreView = true
 
             fun update(newData: ScoreData) {
                 if (newData.score.toInt() == -1) {
@@ -249,14 +255,19 @@ class ScoreboardActivity : AppCompatActivity() {
                     avatarIMG.setImageBitmap(bitmap)
                 } else {
                     usernameTV.text = newData.userName;
-                    scoreTV.text = "Score: " + newData.score;
+                    if(inScoreView)
+                        scoreTV.text = "Score: " + newData.score;
+                    else
+                        scoreTV.text = "Time: " + newData.score + " sec";
                     val decoded64 = Base64.decode(newData.imgBaseStr, Base64.DEFAULT)
                     val bitmap = BitmapFactory.decodeByteArray(decoded64, 0, decoded64.size)
                     avatarIMG.setImageBitmap(bitmap)
                 }
             }
         }
-
+        fun inScoreChange(state : Boolean){
+            inScoreView = state
+        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context)
@@ -266,6 +277,7 @@ class ScoreboardActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.inScoreView = inScoreView
             holder.update(data[position])
         }
 

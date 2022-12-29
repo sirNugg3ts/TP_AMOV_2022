@@ -54,4 +54,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.google.android.gms:play-services-auth:20.4.0'
+
+    implementation 'androidx.appcompat:appcompat:1.7.0-alpha01'
+
 }
