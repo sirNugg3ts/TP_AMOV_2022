@@ -52,7 +52,7 @@ class ScoreboardActivity : AppCompatActivity() {
 
 
         val db = Firebase.firestore
-        val db_highscores = db.collection("PointHighScores")
+        val db_highscores = db.collection(COLLECTION_SCORE_NAME)
         Log.i("Firebase", "Count -> " + 5)
         var username: String = ""
         var score: Long = 0
@@ -62,7 +62,7 @@ class ScoreboardActivity : AppCompatActivity() {
 
         if (playScore.toInt() != -1) {
             Log.i("NEWWAY", "start of")
-            db.collection("PointHighScores").get().addOnSuccessListener { documents ->
+            db.collection(COLLECTION_SCORE_NAME).get().addOnSuccessListener { documents ->
                 var i = 0
                 for (document in documents) {
                     Log.i("ZZZ", document.get("score").toString())
@@ -108,7 +108,7 @@ class ScoreboardActivity : AppCompatActivity() {
                     //highScores = sortedScores.toMutableList() as ArrayList<ScoreData>
 
 
-                    db.collection("PointHighScores").get().addOnSuccessListener { docs ->
+                    db.collection(COLLECTION_SCORE_NAME).get().addOnSuccessListener { docs ->
                         var i = 0
                         for (document in docs) {
                             val insertData = hashMapOf(
@@ -135,7 +135,7 @@ class ScoreboardActivity : AppCompatActivity() {
             insertedUser = false
 
 
-            db.collection("TimeHighScore").get().addOnSuccessListener { documents ->
+            db.collection(COLLECTION_TIME_NAME).get().addOnSuccessListener { documents ->
                 var i = 0
                 for (document in documents) {
                     highScoresTime.add(ScoreData(document.get("username")!!.toString(),document.get("time")!! as Long,document.get("image")!!.toString()))
@@ -165,7 +165,7 @@ class ScoreboardActivity : AppCompatActivity() {
                     //highScores = sortedScores.toMutableList() as ArrayList<ScoreData>
 
 
-                    db.collection("TimeHighScore").get().addOnSuccessListener { docs ->
+                    db.collection(COLLECTION_TIME_NAME).get().addOnSuccessListener { docs ->
                         var i = 0
                         for (document in docs) {
                             val insertData = hashMapOf(
@@ -304,7 +304,7 @@ class ScoreboardActivity : AppCompatActivity() {
         val db = Firebase.firestore
         val doc = "PointsScore_$index"
         Log.i("Filling", doc)
-        db.collection("PointHighScores").document(doc).set(templateData)
+        db.collection(COLLECTION_SCORE_NAME).document(doc).set(templateData)
     }
 
     fun fillFSTime(index: Int) {
@@ -317,15 +317,15 @@ class ScoreboardActivity : AppCompatActivity() {
         val db = Firebase.firestore
         val doc = "TimeScore_$index"
         Log.i("Filling", doc)
-        db.collection("TimeHighScore").document(doc).set(templateData, SetOptions.merge())
+        db.collection(COLLECTION_TIME_NAME).document(doc).set(templateData, SetOptions.merge())
     }
 
 
     fun startObserverSc(index: Int) {
-        Log.i("aiai", "PointsScore_" + index.toString())
+        Log.i("aiai", DOCUMENT_SCORE_NAME + index.toString())
         val db = Firebase.firestore
         listeners.add(
-            db.collection("PointHighScores").document("PointsScore_" + index.toString())
+            db.collection(COLLECTION_SCORE_NAME).document(DOCUMENT_SCORE_NAME + index.toString())
                 .addSnapshotListener { doc, e ->
                     if (e != null) {
                         return@addSnapshotListener
@@ -350,10 +350,10 @@ class ScoreboardActivity : AppCompatActivity() {
     }
 
     fun startObserverTm(index: Int) {
-        Log.i("aiai", "TimeScore_" + index.toString())
+        Log.i("aiai", DOCUMENT_TIME_NAME + index.toString())
         val db = Firebase.firestore
         listeners.add(
-            db.collection("TimeHighScore").document("TimeScore_" + index.toString())
+            db.collection(COLLECTION_TIME_NAME).document(DOCUMENT_TIME_NAME + index.toString())
                 .addSnapshotListener { doc, e ->
                     if (e != null)
                         return@addSnapshotListener
@@ -382,7 +382,7 @@ class ScoreboardActivity : AppCompatActivity() {
 
     fun updateDataToFT(): ArrayList<ScoreData> {
         val db = Firebase.firestore
-        val coll = db.collection("PointHighScores")
+        val coll = db.collection(COLLECTION_SCORE_NAME)
         val countQuery = coll.count()
         var size: Long = 0
         var scoreList = arrayListOf<ScoreData>()
@@ -405,7 +405,7 @@ class ScoreboardActivity : AppCompatActivity() {
         var scoreList = arrayListOf<ScoreData>()
         Log.i("Firebase", "Count -> " + size)
         for (i in 1..size) {
-            val v = db.collection("PointHighScores").document("PointsScore_1")
+            val v = db.collection(COLLECTION_SCORE_NAME).document("PointsScore_1")
             v.get(Source.SERVER).addOnSuccessListener {
                 val exists = it.exists()
                 if (!exists) //if dont exists
@@ -426,5 +426,12 @@ class ScoreboardActivity : AppCompatActivity() {
 
     companion object {
         var nr: Int = 0
+
+        val COLLECTION_SCORE_NAME = "PointHighScores"
+        val DOCUMENT_SCORE_NAME = "PointsScore_"
+
+        val COLLECTION_TIME_NAME = "TimeHighScore"
+        val DOCUMENT_TIME_NAME = "TimeScore_"
+
     }
 }
