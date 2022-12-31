@@ -1,11 +1,9 @@
 package pt.isec.a21280348.bigmath.multiplayer
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import pt.isec.a21280348.bigmath.GameTableActivity
 import pt.isec.a21280348.bigmath.MyViewModel
 import java.io.InputStream
 import java.io.OutputStream
@@ -18,7 +16,6 @@ class GameViewModel : ViewModel() {
 
     companion object {
         const val SERVER_PORT = 9001
-
     }
 
     private var serverSocket: ServerSocket? = null
@@ -40,6 +37,7 @@ class GameViewModel : ViewModel() {
     private var playersGameData : LiveData<ArrayList<MyViewModel>>?
         get() = _playersGameData
         set(value) {}
+
     //public var _playersGameData: MutableList<MyViewModel>
 
     private var clientSocket: Socket? = null
@@ -61,6 +59,12 @@ class GameViewModel : ViewModel() {
         if (serverSocket != null)
             return
 
+        var test : MyViewModel = MyViewModel()
+
+        //playersGameData?.value?.add(test)
+
+        Log.e("TAG", _playersGameData.value.toString())
+
         Log.e("TAG","Waiting for clients1")
 
         //Thread para aguardar novos jogadores
@@ -75,17 +79,47 @@ class GameViewModel : ViewModel() {
                     Log.e("TAG","Waiting for clients2")
                     //Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made.
                     val clientSocket = serverSocket?.accept()
-                    //handleClient(clientSocket)
+
                     Log.e("TAG","Client Connected")
 
                     if (clientSocket != null) {
+
                         //playersGameData.add(MyViewModel())
                         //_playersGameData.value?.add(MyViewModel())
 
                         //playersGameData?.value?.add(MyViewModel())
+
+                        //_playersGameData.postValue(tmp)
+                        /*
+                        val temp : ArrayList<MyViewModel>? = playersGameData?.value
+                        temp?*/
+/*
+                        _playersGameData.postValue {
+                            val newList = playersGameData.value ?: arrayListOf()
+                            newList.add(MyViewModel())
+                            newList
+                        }*/
+/*
+                        _playersGameData.postValue {
+                            val newList = playersGameData.value ?: arrayListOf()
+                            newList.add(MyViewModel())
+                            newList
+                        }*/
+
+
+                        //playersGameData.value?.add(MyViewModel())
+                        //_playersGameData.postValue(_playersGameData.value.add(MyViewModel()))
+
                         playersGameData?.value?.add(MyViewModel())
                         _playersGameData.postValue(playersGameData?.value)
+
+                        Log.e("TAG",playersGameData?.value.toString())
+
+                        //playersGameData?.value?.add(MyViewModel())
+                        //_playersGameData.postValue(playersGameData?.value?.add(MyViewModel()))
+                        //_playersGameData.postValue(playersGameData?.value)
                         socketsClients.add(clientSocket)
+                        Log.e("TAG",socketsClients.toString())
                         thread {
                             //playersGameData?.value?.let { handleClient(clientSocket, it.last()) }
                             playersGameData?.value?.let { handleClient(clientSocket, it.last()) }
@@ -118,6 +152,7 @@ class GameViewModel : ViewModel() {
         //check if the socket is valid
         if (clientSocket.isClosed)
             return
+        //9024-9024/pt.isec.a21280348.bigmath W/Settings:
 
         //TODO: Handle player's game
 
@@ -133,5 +168,4 @@ class GameViewModel : ViewModel() {
             Log.i("GameViewModel","Exception Stop Game")
         }
     }
-
 }
