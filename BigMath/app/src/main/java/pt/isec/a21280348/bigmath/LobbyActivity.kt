@@ -1,9 +1,11 @@
 package pt.isec.a21280348.bigmath
 
+import android.Manifest.permission.SEND_SMS
 import android.app.PendingIntent
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
@@ -26,6 +28,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -84,7 +88,7 @@ class LobbyActivity : AppCompatActivity() {
         }
 
         _nrPlayersLive = MutableLiveData<ArrayList<MyViewModel>>().apply { value =
-            model._playersGameData.value
+            model._playersGameData
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -95,6 +99,13 @@ class LobbyActivity : AppCompatActivity() {
         binding.btnInvitePlayers.setOnClickListener {
 
             logi("clicked invite players button")
+
+            val permissionGranted = ContextCompat.checkSelfPermission(this, SEND_SMS) == PackageManager.PERMISSION_GRANTED
+
+            if (!permissionGranted) {
+                // Request the permission
+                ActivityCompat.requestPermissions(this, arrayOf(SEND_SMS), 1)
+            }
 
             val edtBox = EditText(this).apply {
                 maxLines = 1
@@ -127,35 +138,26 @@ class LobbyActivity : AppCompatActivity() {
                 .setTitle("Invite a client")
                 .setMessage("Insert a phone number to invite to play! ")
                 .setPositiveButton("Send") { _: DialogInterface, _: Int ->
-                    //val strNumber = edtBox.text.toString()
-                    val strNumber = "+351968338428"
+                    val strNumber = edtBox.text.toString()
+                    var auxNumber = "+351"
+                    var final : String = ""
+                    final += auxNumber
+                    final += strNumber
+
+                    //val strNumber = "+351968338428"
                     if(strNumber.isEmpty() || !Patterns.PHONE.matcher(strNumber).matches()){
                         Toast.makeText(this@LobbyActivity, "Invalid phone number!", Toast.LENGTH_LONG)
                             .show()
                     } else {
-                        //val sentPI: PendingIntent = PendingIntent.getBroadcast(this, 0, Intent("SMS_SENT"), 0)
-                        //SmsManager.getDefault().sendTextMessage(strNumber, null, "Join the Big Math multiplayer game: using this IP adress: " + strIP, sentPI, null)
 
 
                         try {
-/*
-                            val uri = Uri.parse("smsto:" + strNumber)
-                            val intent = Intent(Intent.ACTION_SENDTO, uri)
-                            intent.putExtra("Ola", "Here goes your message...")
-                            startActivity(intent)*/
+                            val smsManager:SmsManager
 
-                            var smsManager:SmsManager
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                smsManager = this.getSystemService(SmsManager::class.java)
-                            } else {
-                                smsManager = SmsManager.getDefault()
-                                Toast.makeText(applicationContext, "Message Sent", Toast.LENGTH_LONG)
-                                    .show()
-                            }
+                            smsManager = SmsManager.getDefault()
 
                             smsManager.sendTextMessage(
-                                "+351968338428",
+                                strNumber,
                                 null,
                                 "Join the Big Math multiplayer game: using this IP adress:  $strIP",
                                 null,
@@ -335,4 +337,5 @@ class LobbyActivity : AppCompatActivity() {
         binding.btnInvitePlayers.visibility = View.INVISIBLE
         binding.btnStartGame.visibility = View.INVISIBLE
     }
+
 }

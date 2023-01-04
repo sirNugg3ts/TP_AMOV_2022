@@ -31,12 +31,14 @@ class GameViewModel : ViewModel() {
         get() = _connectionState
 
     //Array that will have the information of each player connected and playing
-    //public var playersGameData: ArrayList<MyViewModel> = ArrayList()
+    //public var _playersGameData: ArrayList<MyViewModel> = ArrayList()
 
     public var _playersGameData: MutableLiveData<ArrayList<MyViewModel>> = MutableLiveData<ArrayList<MyViewModel>>().apply { value = ArrayList() }
     private var playersGameData : LiveData<ArrayList<MyViewModel>>?
         get() = _playersGameData
         set(value) {}
+
+    //val _playersGameData : MutableList<MyViewModel>()
 
     //public var _playersGameData: MutableList<MyViewModel>
 
@@ -63,9 +65,11 @@ class GameViewModel : ViewModel() {
 
         //playersGameData?.value?.add(test)
 
-        Log.e("TAG", _playersGameData.value.toString())
+        //Log.e("TAG", _playersGameData.value.toString())
 
         Log.e("TAG","Waiting for clients1")
+
+        //val clientsInfoTemp = _playersGameData
 
         //Thread para aguardar novos jogadores
         thread {
@@ -84,15 +88,6 @@ class GameViewModel : ViewModel() {
 
                     if (clientSocket != null) {
 
-                        //playersGameData.add(MyViewModel())
-                        //_playersGameData.value?.add(MyViewModel())
-
-                        //playersGameData?.value?.add(MyViewModel())
-
-                        //_playersGameData.postValue(tmp)
-                        /*
-                        val temp : ArrayList<MyViewModel>? = playersGameData?.value
-                        temp?*/
 /*
                         _playersGameData.postValue {
                             val newList = playersGameData.value ?: arrayListOf()
@@ -107,13 +102,21 @@ class GameViewModel : ViewModel() {
                         }*/
 
 
-                        //playersGameData.value?.add(MyViewModel())
-                        //_playersGameData.postValue(_playersGameData.value.add(MyViewModel()))
-
+                        _playersGameData.value?.add(MyViewModel())
+                        _playersGameData.postValue(_playersGameData.value)
+/*
                         playersGameData?.value?.add(MyViewModel())
-                        _playersGameData.postValue(playersGameData?.value)
+                        _playersGameData.postValue(playersGameData?.value)*/
+/*
+                        _playersGameData.postValue {
+                            val newList = _playersGameData.value ?: arrayListOf()
+                            newList.add(MyViewModel())
+                            newList
+                        }
 
-                        Log.e("TAG",playersGameData?.value.toString())
+                        Log.e("TAG",_playersGameData.value.toString())*/
+
+                        //_playersGameData.add(MyViewModel())
 
                         //playersGameData?.value?.add(MyViewModel())
                         //_playersGameData.postValue(playersGameData?.value?.add(MyViewModel()))
@@ -122,7 +125,8 @@ class GameViewModel : ViewModel() {
                         Log.e("TAG",socketsClients.toString())
                         thread {
                             //playersGameData?.value?.let { handleClient(clientSocket, it.last()) }
-                            playersGameData?.value?.let { handleClient(clientSocket, it.last()) }
+                            _playersGameData.value?.let { handleClient(clientSocket, it.last()) }
+                            //handleClient(clientSocket,MyViewModel())
                         }
                     }
                 }
