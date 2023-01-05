@@ -7,3 +7,10 @@ enum class ConnectionState {
     CONNECTION_ERROR,
     CLIENT_CONNECTING
 }
+
+enum class GameState {
+    WAITING_FOR_PLAYERS,
+    WAITING_FOR_ANSWER,
+    WAITING_FOR_NEXT_QUESTION,
+    GAME_OVER
+}

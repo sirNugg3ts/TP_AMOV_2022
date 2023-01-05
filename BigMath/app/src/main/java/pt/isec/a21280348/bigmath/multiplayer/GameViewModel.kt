@@ -4,13 +4,28 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import org.json.JSONArray
+import org.json.JSONObject
 import pt.isec.a21280348.bigmath.MyViewModel
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.io.OutputStream
+import java.io.OutputStreamWriter
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
+import java.nio.charset.StandardCharsets
 import kotlin.concurrent.thread
+
+class GameData{
+    var table : List<Any> = listOf(20)
+    var levelLive : Int = 1
+    var timeLeftLive : Int = 0
+    var score : Int = 0
+    var phase : Int = 1
+}
+
+
 
 class GameViewModel : ViewModel() {
 
@@ -20,27 +35,14 @@ class GameViewModel : ViewModel() {
 
     private var serverSocket: ServerSocket? = null
 
-    private var threadsJogadores: ArrayList<Thread> = ArrayList()
-
     private var socketsClients: ArrayList<Socket> = ArrayList()
 
-    //public var connectionState: ConnectionState? = null
+    private val _gameState = MutableLiveData(GameState.WAITING_FOR_PLAYERS)
 
     private val _connectionState = MutableLiveData(ConnectionState.SETTING_PARAMETERS)
     val connectionState : LiveData<ConnectionState>
         get() = _connectionState
 
-    //Array that will have the information of each player connected and playing
-    //public var _playersGameData: ArrayList<MyViewModel> = ArrayList()
-
-    public var _playersGameData: MutableLiveData<ArrayList<MyViewModel>> = MutableLiveData<ArrayList<MyViewModel>>().apply { value = ArrayList() }
-    private var playersGameData : LiveData<ArrayList<MyViewModel>>?
-        get() = _playersGameData
-        set(value) {}
-
-    //val _playersGameData : MutableList<MyViewModel>()
-
-    //public var _playersGameData: MutableList<MyViewModel>
 
     private var clientSocket: Socket? = null
 
@@ -49,85 +51,39 @@ class GameViewModel : ViewModel() {
     private val socketO: OutputStream?
         get() = clientSocket?.getOutputStream()
 
-    //var players : MutableLiveData<ArrayList<MyViewModel>> = MutableLiveData<ArrayList<MyViewModel>>().apply { value = ArrayList() }
-
-    /*
-    private val _connectionState = MutableLiveData(ConnectionState.AWAITING_PLAYERS)
-    val connectionState: LiveData<ConnectionState>
-        get() = _connectionState;*/
-
 
     fun startLobby() {
         if (serverSocket != null)
             return
 
-        var test : MyViewModel = MyViewModel()
+        Log.e("TAG","Waiting for clients 1")
 
-        //playersGameData?.value?.add(test)
-
-        //Log.e("TAG", _playersGameData.value.toString())
-
-        Log.e("TAG","Waiting for clients1")
-
-        //val clientsInfoTemp = _playersGameData
 
         //Thread para aguardar novos jogadores
         thread {
             //Create a new ServerSocket to listen for client connections. This call blocks until a connection is accepted from a client
             serverSocket = ServerSocket(SERVER_PORT)
 
-            Log.e("TAG","Waiting for clients12")
+            Log.e("TAG","Waiting for clients 2")
 
                 _connectionState.postValue(ConnectionState.AWAITING_PLAYERS)
-                while (_connectionState.value != ConnectionState.AWAITING_PLAYERS) {
-                    Log.e("TAG","Waiting for clients2")
+                while (_connectionState.value == ConnectionState.AWAITING_PLAYERS) {
+                    Log.e("TAG","Waiting for clients 3")
                     //Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made.
-                    val clientSocket = serverSocket?.accept()
+                    try{
+                        val clientSocket = serverSocket!!.accept()
+                        Log.e("TAG","Client Connected!")
 
-                    Log.e("TAG","Client Connected")
+                        if (clientSocket != null) {
 
-                    if (clientSocket != null) {
-
-/*
-                        _playersGameData.postValue {
-                            val newList = playersGameData.value ?: arrayListOf()
-                            newList.add(MyViewModel())
-                            newList
-                        }*/
-/*
-                        _playersGameData.postValue {
-                            val newList = playersGameData.value ?: arrayListOf()
-                            newList.add(MyViewModel())
-                            newList
-                        }*/
-
-
-                        _playersGameData.value?.add(MyViewModel())
-                        _playersGameData.postValue(_playersGameData.value)
-/*
-                        playersGameData?.value?.add(MyViewModel())
-                        _playersGameData.postValue(playersGameData?.value)*/
-/*
-                        _playersGameData.postValue {
-                            val newList = _playersGameData.value ?: arrayListOf()
-                            newList.add(MyViewModel())
-                            newList
+                            socketsClients.add(clientSocket)
+                            Log.e("TAG",socketsClients.toString())
+                            thread {
+                                handleClient(clientSocket)
+                            }
                         }
-
-                        Log.e("TAG",_playersGameData.value.toString())*/
-
-                        //_playersGameData.add(MyViewModel())
-
-                        //playersGameData?.value?.add(MyViewModel())
-                        //_playersGameData.postValue(playersGameData?.value?.add(MyViewModel()))
-                        //_playersGameData.postValue(playersGameData?.value)
-                        socketsClients.add(clientSocket)
-                        Log.e("TAG",socketsClients.toString())
-                        thread {
-                            //playersGameData?.value?.let { handleClient(clientSocket, it.last()) }
-                            _playersGameData.value?.let { handleClient(clientSocket, it.last()) }
-                            //handleClient(clientSocket,MyViewModel())
-                        }
+                    }catch (_: Exception){
+                        _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
                     }
                 }
         }
@@ -151,14 +107,68 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    private fun handleClient(clientSocket: Socket, GameData: MyViewModel) {
+    private fun handleClient(clientSocket: Socket) {
 
         //check if the socket is valid
         if (clientSocket.isClosed)
-            return
+            throw Exception("Socket is closed")
         //9024-9024/pt.isec.a21280348.bigmath W/Settings:
 
+        var _clientConnectionState : MutableLiveData<ConnectionState> = MutableLiveData(ConnectionState.CONNECTION_ESTABLISHED)
+
         //TODO: Handle player's game
+        var gameData : GameData = GameData()
+        thread {
+            try{
+                if (socketI == null)
+                    return@thread
+
+                val InputStreamReader = InputStreamReader(socketI, StandardCharsets.UTF_8)
+                val OutputStreamWriter = OutputStreamWriter(socketO,StandardCharsets.UTF_8)
+
+                //Wait for gameState to not be WAITING_FOR_PLAYERS
+                //TODO: Instead of thread sleep, use a wait/notify mechanism
+
+                while (_gameState.value == GameState.WAITING_FOR_PLAYERS) {
+                    Thread.sleep(100)
+                }
+
+                //TODO: wait for server to create table and put it in gameData
+
+                if (_gameState.value == GameState.WAITING_FOR_ANSWER) {
+                    //Game is on, send the question
+                    val jsonObject : JSONObject = JSONObject()
+                    //Add gameData to jsonObject
+                    jsonObject.put("table",JSONArray(gameData.table))
+                    jsonObject.put("levelLive",gameData.levelLive)
+                    jsonObject.put("timeLeftLive",gameData.timeLeftLive)
+                    jsonObject.put("score",gameData.score)
+                    jsonObject.put("phase",gameData.phase)
+
+                    //Send jsonObject to client
+                    OutputStreamWriter.write(jsonObject.toString())
+
+                    //Wait for answer
+                    val answer = InputStreamReader.read()
+
+                    //decode answer as jsonObject
+                    val jsonObjectAnswer : JSONObject = JSONObject(answer.toString())
+
+                    //TODO: Check if answer is correct
+                    //TODO: Update gameData
+                    //TODO: Update _gameState
+                    //TODO: Send new question if client is still playing
+
+
+                }
+
+            }catch (_: Exception){
+               // _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
+            }finally {
+                //Terminar jogo
+            }
+        }
+
 
     }
 
