@@ -36,14 +36,24 @@ class GameViewModel : ViewModel() {
 
     private var serverSocket: ServerSocket? = null
 
-    private var socketsClients: ArrayList<Socket> = ArrayList()
+   var socketsClients: ArrayList<Socket> = ArrayList()
 
     private val _gameState = MutableLiveData(GameState.WAITING_FOR_PLAYERS)
 
     private val _connectionState = MutableLiveData(ConnectionState.SETTING_PARAMETERS)
     val connectionState : LiveData<ConnectionState>
         get() = _connectionState
+/*
+    //Array that will have the information of each player connected and playing
+    //public var _playersGameData: ArrayList<MyViewModel> = ArrayList()
+    public var _playersGameData: MutableLiveData<ArrayList<MyViewModel>> = MutableLiveData<ArrayList<MyViewModel>>().apply { value = ArrayList() }
+    private var playersGameData : LiveData<ArrayList<MyViewModel>>?
+        get() = _playersGameData
+        set(value) {}*/
 
+    //val _playersGameData : MutableList<MyViewModel>()
+
+    //public var _playersGameData: MutableList<MyViewModel>
 
     private var clientSocket: Socket? = null
 

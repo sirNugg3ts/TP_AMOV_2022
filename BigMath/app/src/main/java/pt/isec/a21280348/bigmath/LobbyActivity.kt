@@ -86,10 +86,10 @@ class LobbyActivity : AppCompatActivity() {
                 CLIENT_MODE -> startAsClient()
             }
         }
-
+/*
         _nrPlayersLive = MutableLiveData<ArrayList<MyViewModel>>().apply { value =
             model._playersGameData
-        }
+        }*/
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle("Game lobby")
