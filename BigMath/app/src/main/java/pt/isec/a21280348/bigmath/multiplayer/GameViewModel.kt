@@ -3,6 +3,7 @@ package pt.isec.a21280348.bigmath.multiplayer
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import org.json.JSONArray
 import org.json.JSONObject
@@ -67,27 +68,39 @@ class GameViewModel : ViewModel() {
             Log.e("TAG","Waiting for clients 2")
 
                 _connectionState.postValue(ConnectionState.AWAITING_PLAYERS)
-                while (_connectionState.value == ConnectionState.AWAITING_PLAYERS) {
-                    Log.e("TAG","Waiting for clients 3")
-                    //Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made.
-                    try{
-                        val clientSocket = serverSocket!!.accept()
-                        Log.e("TAG","Client Connected!")
 
-                        if (clientSocket != null) {
+//TODO: Questão: Como esperar que o valor esteja atualizado?
 
-                            socketsClients.add(clientSocket)
-                            Log.e("TAG",socketsClients.toString())
-                            thread {
-                                handleClient(clientSocket)
-                            }
-                        }
-                    }catch (_: Exception){
-                        _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
-                    }
-                }
+            //Wait for _connectionState to be AWAITING_PLAYERS
+            while (_connectionState.value != ConnectionState.AWAITING_PLAYERS) {
+                Thread.sleep(100)
+            }
+
+               while (connectionState.value == ConnectionState.AWAITING_PLAYERS) {
+                   Log.e("TAG","Waiting for clients 3")
+                   //Listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made.
+                   try{
+                       val clientSocket = serverSocket!!.accept()
+                       Log.e("TAG","Client Connected!")
+
+                       if (clientSocket != null) {
+
+                           socketsClients.add(clientSocket)
+                           Log.e("TAG",socketsClients.toString())
+                           thread {
+                               handleClient(clientSocket)
+                           }
+                       }
+                   }catch (_: Exception){
+                       _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
+                   }
+               }
+           }
+
+
+
         }
-    }
+
 
     fun startClient(serverIP: String, serverPort: Int = SERVER_PORT){
         if(clientSocket != null ){
