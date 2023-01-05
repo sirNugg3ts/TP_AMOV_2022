@@ -206,14 +206,15 @@ class LobbyActivity : AppCompatActivity() {
         }
 
         binding.btnStartGame.setOnClickListener {
+            /*
             if(_nrPlayersLive?.value?.size == 0){
                 Toast.makeText(this,R.string.warningMultiplayer,Toast.LENGTH_LONG)
                     .show()
             } else {
 
-            }
+            }*/
+            model.startGame()
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -224,13 +225,6 @@ class LobbyActivity : AppCompatActivity() {
 
         registNewPlayers()
         return true
-    }
-
-    private fun sendSMS() {
-        val uri = Uri.parse("smsto:" + strIP)
-        val intent = Intent(Intent.ACTION_SENDTO, uri)
-        intent.putExtra(("Join the Big Math multiplayer game: using this IP adress: $strIP"), "Here goes your message...")
-        startActivity(intent)
     }
 
     private fun registNewPlayers() {

@@ -26,8 +26,6 @@ class GameData{
     var phase : Int = 1
 }
 
-
-
 class GameViewModel : ViewModel() {
 
     companion object {
@@ -36,39 +34,30 @@ class GameViewModel : ViewModel() {
 
     private var serverSocket: ServerSocket? = null
 
-   var socketsClients: ArrayList<Socket> = ArrayList()
+    var socketsClients: ArrayList<Socket> = ArrayList()
 
     private val _gameState = MutableLiveData(GameState.WAITING_FOR_PLAYERS)
+    val gameState : LiveData<GameState>
+        get() = _gameState
+        //set(value) = _gameState.postValue(value)
 
     private val _connectionState = MutableLiveData(ConnectionState.SETTING_PARAMETERS)
     val connectionState : LiveData<ConnectionState>
         get() = _connectionState
-/*
-    //Array that will have the information of each player connected and playing
-    //public var _playersGameData: ArrayList<MyViewModel> = ArrayList()
-    public var _playersGameData: MutableLiveData<ArrayList<MyViewModel>> = MutableLiveData<ArrayList<MyViewModel>>().apply { value = ArrayList() }
-    private var playersGameData : LiveData<ArrayList<MyViewModel>>?
-        get() = _playersGameData
-        set(value) {}*/
-
-    //val _playersGameData : MutableList<MyViewModel>()
-
-    //public var _playersGameData: MutableList<MyViewModel>
 
     private var clientSocket: Socket? = null
 
+    /*
     private val socketI: InputStream?
         get() = clientSocket?.getInputStream()
     private val socketO: OutputStream?
-        get() = clientSocket?.getOutputStream()
-
+        get() = clientSocket?.getOutputStream()*/
 
     fun startLobby() {
         if (serverSocket != null)
             return
 
         Log.e("TAG","Waiting for clients 1")
-
 
         //Thread para aguardar novos jogadores
         thread {
@@ -77,9 +66,9 @@ class GameViewModel : ViewModel() {
 
             Log.e("TAG","Waiting for clients 2")
 
-                _connectionState.postValue(ConnectionState.AWAITING_PLAYERS)
+            _connectionState.postValue(ConnectionState.AWAITING_PLAYERS)
 
-//TODO: Questão: Como esperar que o valor esteja atualizado?
+            //TODO: Questão: Como esperar que o valor esteja atualizado?
 
             //Wait for _connectionState to be AWAITING_PLAYERS
             while (_connectionState.value != ConnectionState.AWAITING_PLAYERS) {
@@ -106,10 +95,7 @@ class GameViewModel : ViewModel() {
                    }
                }
            }
-
-
-
-        }
+    }
 
 
     fun startClient(serverIP: String, serverPort: Int = SERVER_PORT){
@@ -137,6 +123,10 @@ class GameViewModel : ViewModel() {
             throw Exception("Socket is closed")
         //9024-9024/pt.isec.a21280348.bigmath W/Settings:
 
+        val socketI: InputStream = clientSocket.getInputStream()
+        val socketO: OutputStream = clientSocket.getOutputStream()
+
+
         var _clientConnectionState : MutableLiveData<ConnectionState> = MutableLiveData(ConnectionState.CONNECTION_ESTABLISHED)
 
         //TODO: Handle player's game
@@ -159,6 +149,7 @@ class GameViewModel : ViewModel() {
                 //TODO: wait for server to create table and put it in gameData
 
                 if (_gameState.value == GameState.WAITING_FOR_ANSWER) {
+                    Log.e("Handle Client","Entered WAITING_FOR_ANSWER")
                     //Game is on, send the question
                     val jsonObject : JSONObject = JSONObject()
                     //Add gameData to jsonObject
@@ -181,8 +172,6 @@ class GameViewModel : ViewModel() {
                     //TODO: Update gameData
                     //TODO: Update _gameState
                     //TODO: Send new question if client is still playing
-
-
                 }
 
             }catch (_: Exception){
@@ -191,8 +180,17 @@ class GameViewModel : ViewModel() {
                 //Terminar jogo
             }
         }
+    }
 
+    fun startGame() {
+        if(_gameState.value == GameState.WAITING_FOR_PLAYERS){
 
+            _gameState.value = GameState.WAITING_FOR_ANSWER
+
+            while (_gameState.value != GameState.WAITING_FOR_ANSWER) {
+                Thread.sleep(100)
+            }
+        }
     }
 
     fun stopGame(){
