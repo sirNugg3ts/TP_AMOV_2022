@@ -35,6 +35,18 @@
         android:padding="40dp"
         >
 
+
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnLeaderboard"
+            android:layout_margin="8dp"
+            android:text="@string/leaderboard"
+            android:textSize="14sp"
+            android:background="@drawable/round_btn"
+            android:layout_gravity="center"
+            />
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

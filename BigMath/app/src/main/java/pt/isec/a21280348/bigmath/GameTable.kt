@@ -292,12 +292,18 @@ class GameTable @JvmOverloads constructor(
                     binding.scoreSign.text = ""
                 }.start()
 
-
+                if(55 - (_levelLive.value!! - 1)*5  > 20){
                 if(_timeLeftLive.value!! < (55 - (_levelLive.value!! - 1)*5))
                     _timeLeftLive.postValue((_timeLeftLive.value!! +5))
                 else
                     _timeLeftLive.postValue( (60 - (_levelLive.value!! - 1) * 5))
+                }else{
+                    if(_timeLeftLive.value!! < 15)
+                        _timeLeftLive.postValue((_timeLeftLive.value!! +5))
+                    else
+                        _timeLeftLive.postValue( 20)
                 }
+            }
 
         }
         else {
@@ -309,7 +315,7 @@ class GameTable @JvmOverloads constructor(
             binding.scoreSign.animate().setDuration(750).withEndAction {
                 binding.scoreSign.text = "" }.start()
 
-            info.currentScore -= (_levelLive.value!!* 1.3).toInt();
+            info.currentScore -= 1;
             if(info.currentScore < 0)
                 info.currentScore = 0
 
