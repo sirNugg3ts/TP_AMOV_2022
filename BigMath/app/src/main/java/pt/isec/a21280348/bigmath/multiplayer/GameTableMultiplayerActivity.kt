@@ -1,158 +1,30 @@
-package pt.isec.a21280348.bigmath
+package pt.isec.a21280348.bigmath.multiplayer
 
 import android.content.Intent
 import android.content.res.Configuration
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
-import android.widget.TextView
-import android.window.OnBackInvokedDispatcher
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
-
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import pt.isec.a21280348.bigmath.*
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
-import pt.isec.a21280348.bigmath.multiplayer.ConnectionState
+import pt.isec.a21280348.bigmath.databinding.ActivityGameTableMultiplayerBinding
 import kotlin.concurrent.thread
 
-import androidx.activity.viewModels
 
-import androidx.activity.addCallback
-
-
-
-class MyViewModel : ViewModel(){
-
-    companion object {
-        const val SERVER_PORT = 9999
-    }
-
-    var table :  MutableList<Any>  = mutableListOf(20)
-    var _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
-    var levelLive : LiveData<Int>
-        get() = _levelLive
-        set(value) {}
-
-    var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GameTableActivity.GAMETIME }
-    var score : Int = 0
-    var phase : Int = 1
-
-    lateinit var timeLeftLive : LiveData<Int>
-
-
-    private val _connectionState = MutableLiveData(ConnectionState.AWAITING_PLAYERS)
-    val connectionState: LiveData<ConnectionState>
-        get() = _connectionState
-/*
-    private var socket: Socket? = null
-    private val socketI : InputStream?
-        get() = socket?.getInputStream()
-
-    private val socketO : OutputStream?
-        get() = socket?.getOutputStream()
-
-    private var serverSocket: ServerSocket? = null
-
-    private var threadComm: Thread? = null
-
-
-    fun startServer() {
-        if(serverSocket != null || socket != null ||
-                _connectionState.value != ConnectionState.SETTING_PARAMETERS)
-            return;
-
-        _connectionState.postValue(ConnectionState.SERVER_CONNECTING)
-
-        thread {
-            serverSocket = ServerSocket(SERVER_PORT)
-            serverSocket?.run {
-                try {
-                    val socketClient = serverSocket!!.accept()
-                    startComm(socketClient)
-                } catch (_: Exception){
-                    _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
-                } finally {
-                    serverSocket?.close()
-                    serverSocket = null
-                }
-            }
-        }
-    }
-
-    fun stopServer() {
-        serverSocket?.close()
-        _connectionState.postValue(ConnectionState.CONNECTION_ENDED)
-        serverSocket = null
-    }
-
-    fun startClient(serverIP : String, serverPort: Int = SERVER_PORT) {
-        if(socket != null || _connectionState.value != ConnectionState.SETTING_PARAMETERS)
-            return
-
-        thread {
-            _connectionState.postValue(ConnectionState.CLIENT_CONNECTING)
-            try {
-                val newSocket = Socket()
-                newSocket.connect(InetSocketAddress(serverIP,serverPort),5000)
-                startComm(newSocket)
-
-            } catch (_: Exception){
-                _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
-                stopGame()
-            }
-        }
-    }
-
-
-    private fun startComm(newSocket: Socket) {
-        if(threadComm != null)
-            return
-
-        socket = newSocket
-
-        threadComm = thread {
-            try {
-                if(socketI == null)
-                    return@thread
-
-                _connectionState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
-                val bufI = socketI!!.bufferedReader()
-
-            } catch (_: Exception){
-
-            } finally { }
-        }
-    }
-
-    fun stopGame() {
-        try {
-            //_state.postValue(State.GAME_OVER)
-            _connectionState.postValue(ConnectionState.CONNECTION_ERROR)
-            socket?.close()
-            socket = null
-            threadComm?.interrupt()
-            threadComm = null
-        } catch (_: Exception) { }
-    }*/
-}
-
-class GameTableActivity : AppCompatActivity() {
+class GameTableMultiplayerActivity : AppCompatActivity() {
     data class GameInfo(var currentScore : Int,var inTurn : Boolean)
     private val model: MyViewModel by viewModels()
-    private lateinit var binding : ActivityGameTableBinding
+    private lateinit var binding : ActivityGameTableMultiplayerBinding
     private var _levelLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = 1 }
     private var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GAMETIME }
     private lateinit var menuItem : MenuItem
-    private var totalGameTime = 0
     private lateinit var timeThread : Thread
     var threadStop : Boolean = false
 
@@ -165,8 +37,8 @@ class GameTableActivity : AppCompatActivity() {
         get() = _timeLeftLive
         set(value) {}
 
-    lateinit var gameTable : GameTable
-    var info : GameInfo = GameInfo(0,false)
+    lateinit var gameTable : GameTableMultiplayer
+    var info : GameInfo = GameInfo(0, false)
     var paused : Boolean = false
     var firstObserved : Boolean = true
 
@@ -174,19 +46,18 @@ class GameTableActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityGameTableBinding.inflate(layoutInflater)
+        binding = ActivityGameTableMultiplayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
 
-        gameTable = GameTable(this)
+        gameTable = GameTableMultiplayer(this)
         gameTable.setActivityBinding(binding)
         gameTable.setGameInfo(info)
         gameTable.setLiveData(_levelLive,_timeLeftLive)
         binding.gameTableId.addView(gameTable)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setTitle(R.string.app_name)
-
+        supportActionBar?.title = "Math Game"
 
 
         binding.btnPause.setOnClickListener {
@@ -215,7 +86,6 @@ class GameTableActivity : AppCompatActivity() {
                 }
                 else if (!paused) {
                     _timeLeftLive.postValue( (_timeLeftLive.value!! - 1))
-                    totalGameTime++
                 }
                 Thread.sleep(1000)
                 if(threadStop)
@@ -223,8 +93,7 @@ class GameTableActivity : AppCompatActivity() {
             }
             if(!threadStop) {
                 val intent = Intent(this, ScoreboardActivity::class.java)
-                intent.putExtra(scoreTAG, gameTable.getFinalScore())
-                intent.putExtra(totalTimeTAG, totalGameTime)
+                intent.putExtra("score", gameTable.getFinalScore())
                 startActivity(intent)
             }
         }
@@ -232,25 +101,7 @@ class GameTableActivity : AppCompatActivity() {
 
         timeThread.start()
 
-
-        onBackPressedDispatcher.addCallback(this ) {
-            val builder = AlertDialog.Builder(this@GameTableActivity)
-            builder.setTitle(getString(R.string.leave)).setMessage(getString(R.string.quitQuestion))
-
-            builder.setPositiveButton(android.R.string.ok){ dialog,which ->
-                finish()
-                threadStop = true
-            }
-            builder.setNegativeButton(android.R.string.cancel){ dialog,which ->
-            }
-            builder.show()
-        }
     }
-
-
-
-
-
 
     override fun onStart() {
         super.onStart()
@@ -261,13 +112,12 @@ class GameTableActivity : AppCompatActivity() {
         registTimeObserver()
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater : MenuInflater = menuInflater
         Log.i("MENU","MENU CRIADO")
         inflater.inflate(R.menu.table_menu,menu)
         menuItem = menu[0]
-        menuItem.title = getString(R.string.level)+ " " + _levelLive.value.toString()
+        menuItem.title = "Level: " + _levelLive.value.toString()
         return true
     }
 
@@ -281,7 +131,6 @@ class GameTableActivity : AppCompatActivity() {
         model.levelLive = levelLive
         model.score = gameTable.getFinalScore()
         model.phase = gameTable.getPhase()
-        model.totalGameTime = totalGameTime
         threadStop = true
     }
 
@@ -294,19 +143,20 @@ class GameTableActivity : AppCompatActivity() {
         _timeLeftLive = model._timeLeftLive
         timeLeftLive = model.timeLeftLive
         levelLive = model.levelLive
-        totalGameTime = model.totalGameTime
         info = GameInfo(model.score,false)
         gameTable.restoreState(false,model.table,info,model.phase,_levelLive,_timeLeftLive)
 
         firstObserved = true
         registLevelObserver()
-        registTimeObserver()
+        timeLeftLive.observe(this){
+            Log.i("TIME",_timeLeftLive.value.toString())
+            binding.timeCounter.text = _timeLeftLive.value.toString()
+        }
     }
 
     private fun registTimeObserver(){
         timeLeftLive.observe(this){
             Log.i("TIME",_timeLeftLive.value.toString())
-            Log.i(totalTimeTAG,totalGameTime.toString() )
             binding.timeCounter.text = _timeLeftLive.value.toString()
         }
     }
@@ -318,17 +168,13 @@ class GameTableActivity : AppCompatActivity() {
             }
             else {
                 tableReset()
-                getString(R.string.user_file_key)
-                binding.levelView.text = getString(R.string.nextLevel) + " " + 5 + " " +  getString(R.string.seconds) + "!"
+                binding.levelView.text = "Next level in " + 5 + " seconds!"
                 binding.timeCounter.text = ""
-                if(60 - (5 * (_levelLive.value!!-1)) > 20)
-                    _timeLeftLive.value = 60 - (5 * (_levelLive.value!!-1))
-                else
-                    _timeLeftLive.value = 20
+                _timeLeftLive.value = 60 - (5 * (_levelLive.value!!-1))
                 thread {
                     var pausetime = 5
                     runOnUiThread {
-                        menuItem.title = getString(R.string.level)+ " "+ _levelLive.value.toString()
+                        menuItem.title = "Level: " + _levelLive.value.toString()
                     }
                     if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                         runOnUiThread {
@@ -343,7 +189,7 @@ class GameTableActivity : AppCompatActivity() {
                         if(!paused){
                             pausetime -=1
                             runOnUiThread {
-                                binding.levelView.text = getString(R.string.nextLevel) + " "+ pausetime+ " " + getString(R.string.seconds) + "!"
+                                binding.levelView.text = "Next level in " + pausetime + " seconds!"
                             }
                         }
                         Thread.sleep(1000)
@@ -401,8 +247,6 @@ class GameTableActivity : AppCompatActivity() {
 
     companion object{
         val GAMETIME : Int = 60
-        val scoreTAG = "score"
-        val totalTimeTAG = "totalTime"
     }
 
 }

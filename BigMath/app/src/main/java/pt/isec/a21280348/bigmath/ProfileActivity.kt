@@ -48,18 +48,16 @@ class ProfileActivity : AppCompatActivity() {
             binding.btnChooseImage.isEnabled = value
         }
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         actionBar = supportActionBar
-        var title = "Profile"
-        actionBar?.setTitle(title)
+        actionBar?.setTitle(R.string.profile)
 
         binding.btnTakePhoto.apply {
+            mode = CAMERA
             setOnClickListener {
                 if(checkCameraHardware(this.context))
                     takePhoto_v2()
@@ -108,6 +106,7 @@ class ProfileActivity : AppCompatActivity() {
         verifyPermissions_v3()
         updatePreview()
 
+
         val sharedPref = this.getSharedPreferences(getString(R.string.user_file_key),Context.MODE_PRIVATE) ?: return
         if(binding.usernameTV.text.toString().isNullOrEmpty()) {//if the fields are empty fill it
 
@@ -128,6 +127,7 @@ class ProfileActivity : AppCompatActivity() {
         actionBar?.setBackgroundDrawable(colorDrawable)
         Toast.makeText(this, "Circular Image View " + "without using any library", Toast.LENGTH_LONG).show()*/
 
+
     }
 
     fun updatePreview() {
@@ -144,14 +144,10 @@ class ProfileActivity : AppCompatActivity() {
         ActivityResultContracts.GetContent()
     ) { uri ->
         Log.i(TAG, "startActivityForContentResult: ")
-        /*uri?.apply {
-                val cursor = contentResolver.query(this,
-                    arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null)
-                if (cursor !=null && cursor.moveToFirst())
-                    imagePath = cursor.getString(0)
-                updatePreview()
-        }*/
-        imagePath = uri?.let {createFileFromUri(this, it)}
+
+
+        imagePath = uri?.let { createFileFromUri(this, it) }
+
         updatePreview()
     }
 

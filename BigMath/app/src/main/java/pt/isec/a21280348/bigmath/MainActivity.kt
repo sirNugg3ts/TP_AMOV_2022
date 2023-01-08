@@ -20,11 +20,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnSettings.setOnClickListener {
-            val intent = Intent(this,SettingsActivity::class.java)
-            startActivity(intent)
-        }
-
         binding.btnProfile.setOnClickListener{
             val intent = Intent(this,ProfileActivity::class.java)
             startActivity(intent)
@@ -41,14 +36,14 @@ class MainActivity : AppCompatActivity() {
             val dlg = AlertDialog.Builder(this)
                 .setTitle(R.string.multiplyer_title)
                 .setMessage(R.string.msg_multiplyer_initializer)
-                .setNeutralButton(R.string.server_btn) { _: DialogInterface, _: Int ->
-                    startActivity(LobbyActivity.getServerModeIntent(this))
-                }
 
-                .setNegativeButton(R.string.cancel_btn) {  _: DialogInterface, _: Int ->
+                .setPositiveButton(R.string.cancel_btn) {  _: DialogInterface, _: Int ->
                     closeContextMenu()
                 }
-                .setPositiveButton(R.string.client_btn) { _: DialogInterface, _: Int ->
+                .setNegativeButton(R.string.server_btn) { _: DialogInterface, _: Int ->
+                    startActivity(LobbyActivity.getServerModeIntent(this))
+                }
+                .setNeutralButton(R.string.client_btn) { _: DialogInterface, _: Int ->
                     val intent = Intent(this, ClientConnectionActivity::class.java)
                     startActivity(intent)
                 }

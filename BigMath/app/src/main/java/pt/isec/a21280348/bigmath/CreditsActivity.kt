@@ -19,6 +19,9 @@ class CreditsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCreditsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setTitle(R.string.credits)
+
         //addDataToFT()
         updateDataToFT()
 
@@ -87,5 +90,6 @@ class CreditsActivity : AppCompatActivity() {
                 Log.i("Firebase", image)
             }
         }
+
     }
 }

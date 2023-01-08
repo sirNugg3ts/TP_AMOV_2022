@@ -26,6 +26,17 @@
     <string name="ipInformation">Server IP Adress:</string>
     <string name="clientConnect">Connect</string>
     <string name="clientConnectEmulator">Connect to Emulator</string>
+
+    <string name="error_address">Address not recognized</string>
+    <string name="msg_ip_address">Server IP address: %s\nWaiting for a client...</string>
+    <string name="invitePlayers">Invite Players</string>
+    <string name="startGameMultiplayer">Start Game</string>
+    <string name="error_phoneNumber">Invalid phone number!</string>
+    <string name="players">Nrº of Players: </string>
+    <string name="warningMultiplayer">At least one player must connect for this type of game to start!</string>
+    <string name="tittleLobby">Game Lobby </string>
+    <string name="tittleSettings">Settings</string>
+
     <string name="user_avatar">User Avatar</string>
     <string name="submit">Submit</string>
     <string name="user_file_key">pt.isec.a21280348.bigmath.USER_PREFS</string>
@@ -42,4 +53,5 @@
     <string name="quitQuestion">Do you really wish to quit?</string>
     <string name="leave">Leave</string>
     <string name="timeView">Time: </string>
+
 </resources>
