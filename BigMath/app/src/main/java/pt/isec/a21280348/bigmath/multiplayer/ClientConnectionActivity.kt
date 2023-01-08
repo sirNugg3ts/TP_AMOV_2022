@@ -27,10 +27,7 @@ class ClientConnectionActivity : AppCompatActivity() {
                 Toast.makeText(this@ClientConnectionActivity, R.string.error_address , Toast.LENGTH_LONG)
                     .show()
             } else {
-                /*
-                * TODO: Redirect client to lobby as client mode
-                *       Add this client to lobby list of clients
-                * */
+
                 model.startClient(strIp)
                 startActivity(LobbyActivity.getClientModeIntent(this))
             }

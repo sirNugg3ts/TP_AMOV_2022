@@ -7,9 +7,9 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import pt.isec.a21280348.bigmath.databinding.ActivityGameTableBinding
+import pt.isec.a21280348.bigmath.databinding.ActivityGameTableMultiplayerBinding
 import pt.isec.a21280348.bigmath.utils.TableSupporter
 import pt.isec.a21280348.bigmath.utils.TableSupporter.Companion.checkOperation
 import kotlin.math.abs
@@ -30,6 +30,7 @@ class GameTable @JvmOverloads constructor(
 
 
     private lateinit var binding : ActivityGameTableBinding
+
 
     var isScrolling : Boolean = false
 

@@ -36,7 +36,7 @@
             android:id="@+id/btnTakePhoto"
             android:padding="10dp"
             android:layout_margin="8dp"
-            android:text="Take Photo"
+            android:text="@string/takePhoto"
             android:textSize="18sp"
             android:background="@drawable/round_btn"
             android:drawableLeft="@drawable/ic_camara"/>

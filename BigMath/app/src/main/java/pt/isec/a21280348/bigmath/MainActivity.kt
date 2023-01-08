@@ -20,11 +20,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnSettings.setOnClickListener {
-            val intent = Intent(this,SettingsActivity::class.java)
-            startActivity(intent)
-        }
-
         binding.btnProfile.setOnClickListener{
             val intent = Intent(this,ProfileActivity::class.java)
             startActivity(intent)

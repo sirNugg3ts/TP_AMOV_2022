@@ -60,20 +60,10 @@ class LobbyActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityLobbyBinding
-    private lateinit var menuItem : MenuItem
 
     private val model : GameViewModel by viewModels()
     private var strIP : String? = null
 
-    private var _nrPlayersLive : MutableLiveData<ArrayList<MyViewModel>>? = null
-    private var nrPlayersLive : LiveData<ArrayList<MyViewModel>>?
-        get() = _nrPlayersLive
-        set(value) {}
-/*
-
-    private var nrPlayersLive : LiveData<Int>
-        get() = _nrPlayersLive
-        set(value)  {}*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,15 +76,15 @@ class LobbyActivity : AppCompatActivity() {
                 CLIENT_MODE -> startAsClient()
             }
         }
-/*
-        _nrPlayersLive = MutableLiveData<ArrayList<MyViewModel>>().apply { value =
-            model._playersGameData
-        }*/
+
+        binding.txtNrPlayers.text = "Nr Players: ${model.numberOfClients}";
+
+        model.numberOfClients.observe(this) {
+            binding.txtNrPlayers.text = "Nr Players: $it";
+        }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setTitle("Game lobby")
-        model.startLobby()
-
+        supportActionBar?.setTitle(R.string.tittleLobby)
 
         binding.btnInvitePlayers.setOnClickListener {
 
@@ -216,35 +206,21 @@ class LobbyActivity : AppCompatActivity() {
             model.startGame()
         }
     }
-
+/*
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater : MenuInflater = menuInflater
         inflater.inflate(R.menu.lobby_menu,menu)
         menuItem = menu[0]
-        menuItem.title = "Players: " + _nrPlayersLive?.value?.size.toString()
-
-        registNewPlayers()
+        menuItem.title = "Players: ${model.numberOfClients}"
         return true
-    }
-
-    private fun registNewPlayers() {
-
-        thread {
-                while(true){
-
-                    runOnUiThread {
-                        menuItem.title = "Players: " + _nrPlayersLive?.value?.size.toString()
-                    }
-                    Thread.sleep(5000)
-                }
-        }
-    }
+    }*/
 
     private fun logi(message: String){
         Log.i(TAG,message)
     }
 
     private fun startAsServer() {
+        model.startLobby()
         val wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val ip = wifiManager.connectionInfo.ipAddress
         val strIpAdress = String.format("%d.%d.%d.%d" ,
