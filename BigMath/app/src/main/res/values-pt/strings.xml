@@ -7,7 +7,7 @@
     <string name="author1">Diogo Pascoal</string>
     <string name="author2">Leonardo Sousa</string>
     <string name="author3">Rodrigo Costa</string>
-    <string name="course_name">Aplicações Móveis</string>
+    <string name="course_name">Arquiteturas Móveis</string>
     <string name="PAUSA_STR">PAUSA</string>
     <string name="score">PONTOS</string>
     <string name="single_player">Um Jogador</string>
@@ -43,5 +43,16 @@
     <string name="user_file_key">pt.isec.a21280348.bigmath.USER_PREFS</string>
     <string name="imageIdent">image_sp</string>
     <string name="usernameIdent">username_sp</string>
+    <string name="leaderboard">Tabela de Líderes</string>
+    <string name="nextLevel">"Próximo nível em: "</string>
+    <string name="level">"Nível:  "</string>
+    <string name="seconds">segundos</string>
+    <string name="myScore">My Score:</string>
+    <string name="myTime">Meu Tempo:</string>
+    <string name="topTime">TOP TEMPO</string>
+    <string name="topScore">TOP SCORE</string>
+    <string name="quitQuestion">Deseja mesmo sair?</string>
+    <string name="leave">Sair</string>
+    <string name="timeView">"Tempo: "</string>
 
 </resources>

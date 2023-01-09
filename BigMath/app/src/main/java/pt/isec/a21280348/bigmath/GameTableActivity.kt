@@ -45,9 +45,8 @@ class MyViewModel : ViewModel(){
     var _timeLeftLive : MutableLiveData<Int> = MutableLiveData<Int>().apply { value = GameTableActivity.GAMETIME }
     var score : Int = 0
     var phase : Int = 1
-
+    var totalGameTime : Int = 0
     lateinit var timeLeftLive : LiveData<Int>
-
 
     private val _connectionState = MutableLiveData(ConnectionState.AWAITING_PLAYERS)
     val connectionState: LiveData<ConnectionState>
